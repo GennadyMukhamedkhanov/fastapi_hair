@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 
-from app.v1.schemas.hairs import HairToneSchema
-from app.v1.services.hairs import (get_all_tones_hair_services, create_tone_hair_services)
+from app.v1.schemas.hairs import HairTone, CreateHairTone
+from app.v1.services.hairs import (get_all_tones_hair_services, create_tone_hair_services, update_tone_hair_services)
 
 # Создаём маршрутизатор с префиксом и тегом
 router = APIRouter(
@@ -9,8 +9,8 @@ router = APIRouter(
 )
 
 
-@router.get("/tones", response_model=list[HairToneSchema], status_code=status.HTTP_200_OK)
-async def get_all_tones_hair(tones_hair: list[HairToneSchema] = Depends(get_all_tones_hair_services)):
+@router.get("/tones", response_model=list[HairTone], status_code=status.HTTP_200_OK)
+async def get_all_tones_hair(tones_hair: list[HairTone] = Depends(get_all_tones_hair_services)):
     """
     Возвращает список всех тонов волос.
     """
@@ -18,10 +18,20 @@ async def get_all_tones_hair(tones_hair: list[HairToneSchema] = Depends(get_all_
 
 
 @router.post("/tones",
-             response_model=HairToneSchema,
+             response_model=HairTone,
              status_code=status.HTTP_201_CREATED)
-async def create_tone_hair(tones_hair: HairToneSchema = Depends(create_tone_hair_services)):
+async def create_tone_hair(tones_hair: HairTone = Depends(create_tone_hair_services)):
     """
     Создает новый тон волос.
+    """
+    return tones_hair
+
+
+@router.patch("/tones/{tone_id}",
+              response_model=HairTone,
+              status_code=status.HTTP_200_OK)
+async def update_tone_hair(tones_hair: HairTone = Depends(update_tone_hair_services)):
+    """
+    Обновляет тон волос.
     """
     return tones_hair
