@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.common.database import Base
 
 
-class ProductStatus(str, Enum):
+class ProductStatusEnum(str, Enum):
     """Статусы товара для отслеживания его местонахождения"""
     WAREHOUSE = "warehouse"  # Товар находится на складе
     TRANSIT = "transit"  # Товар в пути к покупателю
@@ -36,7 +36,8 @@ class HairProduct(Base):
     sale_price_per_100g: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="Оптимальная цена продажи за 100г")
     tax_rate: Mapped[float] = mapped_column(Float, default=0.0, comment="Налог (0.2=20%)")
     stock_grams: Mapped[int] = mapped_column(Integer, default=0, comment="Запас грамм")
-    status: Mapped[ProductStatus] = mapped_column(String(20), default=ProductStatus.WAREHOUSE, comment="warehouse/transit/sold/return_transit")
+    status: Mapped[ProductStatusEnum] = mapped_column(String(20), default=ProductStatusEnum.WAREHOUSE,
+                                                  comment="warehouse/transit/sold/return_transit")
     booking: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True, comment="Бронь до даты")
 
     # Связь с тоном

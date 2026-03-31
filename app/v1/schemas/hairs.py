@@ -1,7 +1,8 @@
 from typing import Annotated
+from decimal import Decimal
 
 from pydantic import BaseModel, Field, ConfigDict
-
+from datetime import datetime
 
 class HairTone(BaseModel):
     id: Annotated[int, Field(..., description="ID позиции корзины")]
@@ -26,3 +27,17 @@ class HairProductCreate(BaseModel):
     purchase_price_per_100g: Annotated[float, Field(description="Цена закупки за 100г", ge=0)]
     sale_price_per_100g: Annotated[float, Field(description="Оптимальная цена продажи за 100г", ge=0)]
     stock_grams: Annotated[int, Field(description="Колличество волос в граммах", ge=0)]
+
+
+class HairProduct(BaseModel):
+    id: Annotated[int, Field(description="ID товара (волос+длина)", ge=0)]
+    tone: Annotated[HairTone, Field(description="Код тона волос (например: 6.0, 6.35, 8.13 - уникальный)")]
+    length_cm: Annotated[int, Field(description="Длина см (60, 70, 80...)", ge=0)]
+    purchase_price_per_100g: Annotated[Decimal, Field(description="Цена закупки за 100г", ge=0)]
+    sale_price_per_100g: Annotated[Decimal, Field(description="Оптимальная цена продажи за 100г", ge=0)]
+    stock_grams: Annotated[int, Field(description="Колличество волос в граммах", ge=0)]
+    tax_rate: Annotated[float, Field(description="Налог (0.2=20%)", ge=0.0)]
+    status: Annotated[str, Field(description="warehouse/transit/sold/return_transit")]
+    booking: Annotated[datetime | None, Field(None, description="Бронь до даты")] = None
+
+    model_config = ConfigDict(from_attributes=True)

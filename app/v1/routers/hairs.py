@@ -1,12 +1,21 @@
 from fastapi import APIRouter, status, Depends
 
-from app.v1.schemas.hairs import HairTone, CreateHairTone
-from app.v1.services.hairs import (get_all_tones_hair_services, create_tone_hair_services, update_tone_hair_services)
+from app.v1.schemas.hairs import (HairTone, HairProduct)
+from app.v1.services.hairs import (get_all_tones_hair_services, create_tone_hair_services, update_tone_hair_services,
+                                   create_hair_product_services)
 
 # Создаём маршрутизатор с префиксом и тегом
 router = APIRouter(
     tags=["hairs"]
 )
+
+
+@router.post("/",
+             response_model=HairProduct,
+             status_code=status.HTTP_201_CREATED)
+async def create_hair_product(hair_product: HairProduct = Depends(create_hair_product_services)):
+
+    return hair_product
 
 
 @router.get("/tones", response_model=list[HairTone], status_code=status.HTTP_200_OK)
