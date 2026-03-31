@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Подключаем внешний CSS файл -->
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💇‍♀️ CRM Hair</h1>
+        <p class="subtitle">Управление складом</p>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="showDemoMessage('список волос')">
+                📋 Список волос
+            </button>
+            <button class="btn btn-secondary" onclick="showDemoMessage('сделать заказ')">
+                🛒 Сделать заказ
+            </button>
+            <button class="btn btn-danger" onclick="showDemoMessage('статистика')">
+                📊 Статистика
+            </button>
+        </div>
+
+        <div id="demoMessage" class="demo-message">
+            ⚡ Заглушка: <span id="actionName"></span> — здесь будет подключён API
+        </div>
+
+        <div class="footer">
+            🔗 API Docs: <a href="{{ api_docs }}" target="_blank">http://127.0.0.1:8000/v1/docs</a>
+        </div>
+    </div>
+
+    <script>
+        function showDemoMessage(action) {
+            const messageBox = document.getElementById('demoMessage');
+            const actionSpan = document.getElementById('actionName');
+
+            actionSpan.textContent = action;
+            messageBox.classList.add('show');
+
+            // Через 3 секунды скрываем сообщение
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+
+            // Здесь позже будут реальные запросы к API
+            console.log(`🔘 Нажата кнопка: ${action}`);
+        }
+
+        // Показываем сообщение при загрузке (для демонстрации)
+        setTimeout(() => {
+            showDemoMessage('демонстрация интерфейса');
+        }, 500);
+    </script>
+</body>
+</html>
