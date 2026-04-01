@@ -1,7 +1,8 @@
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
-from app.common.models.hairs import HairTone, HairProduct
+from app.common.models.hairs import HairTone, HairProduct, ProductStatusEnum
 from app.v1.repositories.common import CommonRepository
 from app.v1.schemas.hairs import UpdateHairTone, HairProductCreate
 
@@ -54,10 +55,25 @@ class HairProductRepository(CommonRepository):
         hair_product_db = result.scalars().first()
 
         if hair_product_db:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Товар волос с таким тоном и длиной уже существует')
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail='Товар волос с таким тоном и длиной уже существует')
 
         hair_product_new = self.model(**hair_product.model_dump(exclude_unset=True))
         db.add(hair_product_new)
         await db.commit()
         await db.refresh(hair_product_new, ['tone'])
         return hair_product_new
+
+    async def get_all_hair_products(self, db: AsyncSession, filters_list: list):
+        if filters_list:
+            stmt = (
+                select(self.model)
+                .where(or_(*filters_list))
+                .options(selectinload(self.model.tone))
+            )
+        else:
+            stmt = select(self.model).options(selectinload(self.model.tone))
+        result = await db.execute(stmt)
+        hair_products = result.scalars().all()
+        return hair_products
+

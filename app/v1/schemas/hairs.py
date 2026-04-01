@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
+
 class HairTone(BaseModel):
     id: Annotated[int, Field(..., description="ID позиции корзины")]
     tone: Annotated[str, Field(..., description="Код тона волос (например: 6.0, 6.35, 8.13 - уникальный)")]
@@ -41,3 +42,10 @@ class HairProduct(BaseModel):
     booking: Annotated[datetime | None, Field(None, description="Бронь до даты")] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProductStatusFilter(BaseModel):
+    warehouse: Annotated[bool, Field(description="true — сортировать по наличию на складе")] = False
+    transit: Annotated[bool, Field(description="true — сортировать по ттовару в пути")] = False
+    sold: Annotated[bool, Field(description="true — сортировать по проданным товарам")] = False
+    return_transit: Annotated[bool, Field(description="true — сортировать по возврату в пути")] = False
