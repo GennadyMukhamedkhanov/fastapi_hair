@@ -1,18 +1,9 @@
+#from app.v1.repositories.orders import OrderRepository
+from app.v1.repositories.products import ProductRepository
 
 
-from app.v1.repositories.hairs import HairTonesRepository, HairProductRepository
-
-
-async def get_hair_tones_repository() -> HairTonesRepository:
-    """
-    Возвращает репозиторий тона волос
-    """
-    return HairTonesRepository()
-
-
-
-async def get_hair_product_repository() -> HairProductRepository:
-    """
-    Возвращает репозиторий продукта волос
-    """
-    return HairProductRepository()
+async def get_product_repository() -> ProductRepository:
+    return ProductRepository()
+#
+# async def get_order_repository() -> OrderRepository:
+#     return OrderRepository()
