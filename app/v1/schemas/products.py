@@ -10,7 +10,7 @@ from app.v1.schemas.tones import HairToneOutSchema
 
 
 class ProductCreateSchema(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, alias_generator=lambda x: x[0].upper() + x[1:])
+    model_config = ConfigDict(populate_by_name=True, alias_generator=lambda x: x[0].lower() + x[1:])
 
     tone_id: Annotated[int, Field(gt=0, description="ID оттенка волос")]
     length_cm: Annotated[int, Field(ge=10, le=100, description="Длина волос в см")]
@@ -20,14 +20,14 @@ class ProductCreateSchema(BaseModel):
 
 
 class ProductUpdateSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True, extra="ignore")
 
     purchase_price_per_100g: Annotated[
-        Optional[Decimal], Field(None, decimal_places=2, gt=0, description="Новая закупочная цена")]
+        Decimal | None, Field(ge=0, decimal_places=2, description="Новая закупочная цена")] = None
     sale_price_per_100g: Annotated[
-        Optional[Decimal], Field(None, decimal_places=2, gt=0, description="Новая цена продажи")]
-    tax_rate: Annotated[Optional[float], Field(None, ge=0.0, le=1.0, description="Новая налоговая ставка")]
-    stock_grams: Annotated[Optional[int], Field(None, ge=0, description="Новый остаток на складе")]
+        Decimal | None, Field(ge=0, decimal_places=2, description="Новая цена продажи")] = None
+    tax_rate: Annotated[float | None, Field(ge=0.0, le=1.0, description="Новая налоговая ставка")] = None
+    stock_grams: Annotated[int | None, Field(ge=0, description="Новый остаток на складе")] = None
 
     @model_validator(mode="after")
     def validate_prices(self):

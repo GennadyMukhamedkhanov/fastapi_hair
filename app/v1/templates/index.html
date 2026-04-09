@@ -3,37 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <!-- Подключаем внешний CSS файл -->
-    <link rel="stylesheet" href="/static/css/index.css">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="/v1/static/css/index.css">
 </head>
 <body>
-    <div class="container">
-        <h1>💇‍♀️ CRM Hair</h1>
-        <p class="subtitle">Управление складом</p>
+<div class="container">
+    <h1>💇‍♀️ CRM Hair</h1>
+    <p class="subtitle">Управление складом</p>
 
-        <div class="button-group">
-            <button class="btn btn-primary" onclick="showDemoMessage('список волос')">
-                📋 Список волос
-            </button>
-            <button class="btn btn-secondary" onclick="showDemoMessage('сделать заказ')">
-                🛒 Сделать заказ
-            </button>
-            <button class="btn btn-danger" onclick="showDemoMessage('статистика')">
-                📊 Статистика
-            </button>
-        </div>
+    <div class="button-group">
+        <button class="btn btn-primary" onclick="window.location.href='/v1/hairs/'">
+            📋 Список волос
+        </button>
 
-        <div id="demoMessage" class="demo-message">
-            ⚡ Заглушка: <span id="actionName"></span> — здесь будет подключён API
-        </div>
+        <button class="btn btn-success" onclick="window.location.href='/v1/hairs/create'">
+            ➕ Создать продукт
+        </button>
 
-        <div class="footer">
-            🔗 API Docs: <a href="{{ api_docs }}" target="_blank">http://127.0.0.1:8000/v1/docs</a>
-        </div>
+        <button class="btn btn-secondary" onclick="showDemoMessage('сделать заказ')">
+            🛒 Заказы
+        </button>
+
+        <button class="btn btn-danger" onclick="showDemoMessage('статистика')">
+            📊 Статистика
+        </button>
     </div>
 
-    <script>
+    <div id="demoMessage" class="demo-message">
+        ⚡ Заглушка: <span id="actionName"></span> — здесь будет подключён API
+    </div>
+
+    <div class="footer">
+        🔗 API Docs:
+        <a href="/v1/docs" target="_blank">http://127.0.0.1:8000/v1/docs</a>
+    </div>
+</div>
+
+<script>
         function showDemoMessage(action) {
             const messageBox = document.getElementById('demoMessage');
             const actionSpan = document.getElementById('actionName');
@@ -41,19 +47,17 @@
             actionSpan.textContent = action;
             messageBox.classList.add('show');
 
-            // Через 3 секунды скрываем сообщение
             setTimeout(() => {
                 messageBox.classList.remove('show');
             }, 3000);
 
-            // Здесь позже будут реальные запросы к API
             console.log(`🔘 Нажата кнопка: ${action}`);
         }
 
-        // Показываем сообщение при загрузке (для демонстрации)
         setTimeout(() => {
             showDemoMessage('демонстрация интерфейса');
         }, 500);
-    </script>
+
+</script>
 </body>
 </html>

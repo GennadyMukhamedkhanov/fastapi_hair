@@ -48,7 +48,7 @@ class ProductRepository(CommonRepository):
         )
         session.add(product)
         await session.commit()
-        await session.refresh(product)
+        await session.refresh(product, ['tone'])
         return product
 
     async def update_product(self, session: AsyncSession, product_id: int, data: ProductUpdateSchema) -> HairProduct:
@@ -58,7 +58,7 @@ class ProductRepository(CommonRepository):
         if not product:
             raise HTTPException(status_code=404, detail="Продукт не найден")
 
-        update_data = data.model_dump(exclude_unset=True)
+        update_data = data.model_dump(exclude_unset=True, exclude_none=True)
         for key, value in update_data.items():
             setattr(product, key, value)
 

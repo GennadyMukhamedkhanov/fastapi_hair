@@ -8,7 +8,7 @@ from app.v1.schemas.orders import OrderOutSchema, OrderCreateSchema, OrderStatus
 # router = APIRouter(
 #     tags=["orders"]
 # )
-#
+# Todo  HTTPONLY COOKIE ------------- использовать для хранения токена
 #
 # @router.post("/", response_model=OrderOutSchema, status_code=201)
 # async def create_order(
