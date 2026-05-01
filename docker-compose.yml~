@@ -34,7 +34,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./app/common/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - media_data:/var/www/media
     depends_on:
       - web
