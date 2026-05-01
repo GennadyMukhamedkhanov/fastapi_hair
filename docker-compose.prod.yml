@@ -8,6 +8,8 @@ services:
     command: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
     volumes:
       - media_data:/home/fast/media
+    env_file:
+      - ./app/.env.prod
     environment:
       - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
       - DEBUG=False

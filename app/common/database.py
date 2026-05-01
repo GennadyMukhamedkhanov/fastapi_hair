@@ -53,10 +53,6 @@ async_session_maker = async_sessionmaker(
 class Base(DeclarativeBase):
     pass
 
-# Импортируем модели ПОСЛЕ определения Base
-from app.common.models.orders import Order, OrderItem
-from app.common.models.hairs import HairTone, HairProduct
-from app.common.models.users import User
 
 # Экспортируем все необходимые объекты
 __all__ = [
