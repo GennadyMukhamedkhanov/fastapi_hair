@@ -1,0 +1,550 @@
+/* order_list.css - полная версия */
+
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.orders-body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+/* Основной контейнер */
+.orders-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Хедер страницы */
+.orders-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.orders-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.orders-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* Фильтры */
+.orders-filters {
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 60px;
+    backdrop-filter: blur(10px);
+}
+
+.orders-filter {
+    padding: 10px 24px;
+    color: white;
+    text-decoration: none;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.orders-filter:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.orders-filter.is-active {
+    background: white;
+    color: #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Карточка таблицы */
+.orders-table-card {
+    padding: 30px 40px;
+    background: white;
+}
+
+.orders-table-wrap {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Таблица */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    min-width: 700px;
+}
+
+.orders-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.orders-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+}
+
+.orders-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    font-size: 14px;
+}
+
+.orders-table tbody tr {
+    transition: background 0.3s ease;
+}
+
+.orders-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Стили для ячеек */
+.cell-nowrap {
+    white-space: nowrap;
+}
+
+.order-number {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* ============================================ */
+/* СТИЛИ ДЛЯ СТАТУСОВ - ПОДДЕРЖКА ВСЕХ ФОРМАТОВ */
+/* ============================================ */
+
+/* Базовый класс бейджа */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* IN_TRANSIT / transit / В пути - СИНИЙ */
+.status-badge.status-in-transit,
+.status-badge[class*="in-transit"] {
+    background: #e3f2fd !important;
+    color: #1976d2 !important;
+}
+
+/* DELIVERED / delivered / Доставлен - ЗЕЛЕНЫЙ */
+.status-badge.status-delivered,
+.status-badge[class*="delivered"] {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+}
+
+/* RETURN_IN_TRANSIT / return_transit / Возврат (в пути) - ОРАНЖЕВЫЙ */
+.status-badge.status-return-in-transit,
+.status-badge[class*="return-in-transit"] {
+    background: #fff3e0 !important;
+    color: #ed6c02 !important;
+}
+
+/* RETURNED_ON_WAREHOUSE / returned_on_warehouse / Возвращен на склад - КРАСНЫЙ */
+.status-badge.status-returned-on-warehouse,
+.status-badge[class*="returned-on-warehouse"] {
+    background: #ffebee !important;
+    color: #d32f2f !important;
+}
+
+/* ============================================ */
+
+/* Имя продавца */
+.seller-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.text-muted {
+    color: #999;
+}
+
+/* Дата */
+.date-cell {
+    color: #666;
+    font-size: 13px;
+}
+
+/* Ссылка открытия */
+.open-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.open-link:hover {
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* Пустое состояние */
+.orders-empty {
+    text-align: center;
+    padding: 80px 40px;
+    background: white;
+}
+
+.orders-empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.orders-empty-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.orders-empty-text {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Шапка: фильтры и кнопка в одной строке */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Кнопка "Назад к списку заказов" */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: #f3f4f6;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.back-button:hover {
+    background: #e5e7eb;
+    color: #111827;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.back-button:active {
+    background: #d1d5db;
+    transform: translateY(0);
+}
+
+/* Блок с чекбоксами фильтрации по статусам */
+.status-filters {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Стилизованный чекбокс */
+.status-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    position: relative;
+    padding: 6px 12px;
+    background: #f9fafb;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.status-checkbox:hover {
+    background: #f3f4f6;
+    border-color: #cbd5e1;
+}
+
+/* Скрываем стандартный чекбокс */
+.status-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Кастомный чекбокс */
+.checkmark {
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.status-checkbox:hover input ~ .checkmark {
+    border-color: #8b5cf6;
+}
+
+.status-checkbox input:checked ~ .checkmark {
+    background-color: #8b5cf6;
+    border-color: #8b5cf6;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.status-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.status-checkbox .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Цвета для лейблов статусов в фильтрах */
+.status-label.status-in-transit {
+    color: #3b82f6;
+}
+
+.status-label.status-delivered {
+    color: #10b981;
+}
+
+.status-label.status-return-transit {
+    color: #f59e0b;
+}
+
+.status-label.status-returned {
+    color: #ef4444;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .orders-body {
+        padding: 20px 10px;
+    }
+
+    .orders-header {
+        padding: 25px 20px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .orders-title {
+        font-size: 24px;
+    }
+
+    .orders-subtitle {
+        font-size: 14px;
+    }
+
+    .orders-filters {
+        align-self: flex-start;
+    }
+
+    .orders-filter {
+        padding: 8px 18px;
+        font-size: 13px;
+    }
+
+    .orders-table-card {
+        padding: 20px;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .open-link {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .orders-empty {
+        padding: 50px 20px;
+    }
+
+    .orders-empty-icon {
+        font-size: 60px;
+    }
+
+    .orders-empty-title {
+        font-size: 20px;
+    }
+
+    .orders-empty-text {
+        font-size: 14px;
+    }
+
+    .status-filters {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .status-checkbox {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .checkmark {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .status-filters {
+        gap: 8px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .back-button {
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+}
+
+/* Стилизация скроллбара */
+.orders-table-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.orders-table-wrap::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.orders-table-wrap::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.orders-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Стили для статуса DELETED / deleted / Удаленные - СЕРЫЙ */
+.status-badge.status-deleted,
+.status-badge[class*="deleted"] {
+    background: #f5f5f5 !important;
+    color: #757575 !important;
+    text-decoration: line-through;
+}
+
+/* Стиль для лейбла в фильтре */
+.status-label.status-deleted {
+    color: #757575;
+}
+
+/* Стиль для строк удаленных заказов */
+.orders-table tbody tr.order-deleted-row {
+    opacity: 0.7;
+    background-color: #fafafa;
+}
+
+.orders-table tbody tr.order-deleted-row:hover {
+    background-color: #f5f5f5;
+}
+
+.orders-table tbody tr.order-deleted-row .order-number {
+    color: #999;
+    text-decoration: line-through;
+}
+
+/* Адаптивность для мобильных устройств - добавить */
+@media (max-width: 768px) {
+    /* ... существующие стили ... */
+
+    .status-label.status-deleted {
+        font-size: 12px;
+    }
+}

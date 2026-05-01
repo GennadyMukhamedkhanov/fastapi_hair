@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Доступ запрещён{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h1>Доступ запрещён</h1>
+  {% if email %}
+    <p class="muted">Email {{ email }} отсутствует в списке разрешённых пользователей.</p>
+  {% else %}
+    <p class="muted">Этот сайт доступен только ограниченному кругу пользователей.</p>
+  {% endif %}
+  <a class="btn btn-primary" href="/v1/auth_pages/login">Вернуться</a>
+</section>
+{% endblock %}
+
+
+

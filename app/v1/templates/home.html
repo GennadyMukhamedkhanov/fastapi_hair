@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h1>Закрытый раздел</h1>
+  <p>Вы вошли как <strong>{{ user_email }}</strong>.</p>
+  <p class="muted">Если JWT истечёт, потребуется заново подтвердить вход по email.</p>
+</section>
+{% endblock %}

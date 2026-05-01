@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Подтверждение{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h1>Подтверждение входа</h1>
+  <p class="muted">Код отправлен на {{ email }}</p>
+
+  <form method="post" action="/v1/auth_pages/verify" class="form">
+    <input type="hidden" name="email" value="{{ email }}" />
+
+    <label for="name">Введите ваше имя</label>
+    <input id="name" name="name" type="text" value="{{ name }}" required />
+
+    <label for="code">Код</label>
+    <input id="code" name="code" type="text" maxlength="6" inputmode="numeric" required />
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <button class="btn btn-primary" type="submit">Подтвердить</button>
+</form>
+
+  <a class="link" href="/v1/auth_pages/login">Изменить email</a>
+</section>
+{% endblock %}

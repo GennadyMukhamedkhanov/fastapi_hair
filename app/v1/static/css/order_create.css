@@ -1,0 +1,500 @@
+/* order_create.css */
+
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+/* Контейнер */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+    position: relative;
+}
+
+/* Шапка с кнопками навигации */
+.header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #eef2f6;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.back-btn {
+    background: #f0f2f5;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.back-btn:hover {
+    background: #e6e9ef;
+    transform: translateX(-2px);
+}
+
+.home-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.home-btn:hover {
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.nav-btn .btn-icon {
+    font-size: 16px;
+}
+
+/* Заголовок страницы */
+.page-title {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin: 0;
+    padding: 30px;
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* Alert сообщение об ошибке */
+.alert {
+    margin: 20px 30px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-danger {
+    background-color: #fee;
+    color: #c33;
+    border-left: 4px solid #c33;
+}
+
+.d-none {
+    display: none;
+}
+
+/* Стили для блока выбора службы доставки */
+.delivery-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    margin: 20px 30px;
+    padding: 24px;
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.delivery-section:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.delivery-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.delivery-icon {
+    font-size: 28px;
+}
+
+.delivery-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.required-star {
+    color: #dc3545;
+    font-size: 18px;
+    -webkit-text-fill-color: #dc3545;
+}
+
+.delivery-select-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.delivery-select {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+.delivery-select:hover {
+    border-color: #667eea;
+    background-color: #fafbff;
+}
+
+.delivery-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.delivery-select option {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.delivery-warning {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fff5f5;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #dc3545;
+    border-left: 3px solid #dc3545;
+}
+
+.delivery-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #6c757d;
+    border-left: 3px solid #667eea;
+}
+
+.note-icon {
+    font-size: 14px;
+}
+
+/* Таблица */
+.table-wrapper {
+    overflow-x: auto;
+    margin: 0 20px 20px 20px;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.products-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.products-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.products-table td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+    font-size: 15px;
+}
+
+/* Стили для выделения строк с одинаковым тоном */
+.products-table tbody tr {
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover эффект для всех строк */
+.products-table tbody tr:hover {
+    background: #f8f9fa !important;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.products-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Стили для select */
+.product-select {
+    width: 100%;
+    max-width: 150px;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.product-select:hover {
+    border-color: #667eea;
+}
+
+.product-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Кнопка отправки */
+.form-actions {
+    padding: 20px 30px 30px;
+    text-align: center;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn-submit:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    font-size: 20px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    body {
+        padding: 20px 10px;
+    }
+
+    .header-buttons {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .nav-btn {
+        padding: 6px 16px;
+        font-size: 13px;
+    }
+
+    .nav-btn .btn-icon {
+        font-size: 14px;
+    }
+
+    .page-title {
+        font-size: 22px;
+        padding: 20px;
+    }
+
+    .alert {
+        margin: 15px 20px;
+        font-size: 14px;
+    }
+
+    .delivery-section {
+        margin: 15px 20px;
+        padding: 18px;
+    }
+
+    .delivery-title {
+        font-size: 18px;
+    }
+
+    .delivery-icon {
+        font-size: 24px;
+    }
+
+    .delivery-select {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .delivery-note {
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+
+    .delivery-warning {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .table-wrapper {
+        margin: 0 15px 15px 15px;
+    }
+
+    .products-table th {
+        font-size: 12px;
+        padding: 12px 8px;
+    }
+
+    .products-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+
+    .products-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        margin-right: 10px;
+        display: inline-block;
+    }
+
+    /* Делаем таблицу блочной на мобильных */
+    .products-table,
+    .products-table tbody,
+    .products-table tr,
+    .products-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .products-table thead {
+        display: none;
+    }
+
+    .products-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .products-table td {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+        padding: 10px 15px;
+    }
+
+    .products-table td:last-child {
+        border-bottom: none;
+    }
+
+    .product-select {
+        max-width: 100%;
+    }
+
+    .form-actions {
+        padding: 15px 20px 20px;
+    }
+
+    .btn-submit {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}
+
+/* Стилизация скроллбара для WebKit */
+.table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

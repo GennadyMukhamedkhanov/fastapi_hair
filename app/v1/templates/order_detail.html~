@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/order_detail.css') }}"/>
+    {% block head %}{% endblock %}
+    <script defer src="{{ url_for('static', path='js/order_detail.js') }}"></script>
+</head>
+<body class="{% if order.deleted_at %}order-deleted {% endif %}{% block body_class %}orders-body{% endblock %}">
+<div class="layout">
+    <header class="header">
+        <a href="/v1/index" class="home-button" aria-label="Перейти на главную страницу">
+            <span class="home-button__emoji" aria-hidden="true">🧑</span>
+            <span>Главная</span>
+        </a>
+    </header>
+
+    <main id="main-content" class="main">
+        <div class="order-detail-container">
+            <!-- Баннер удаленного заказа -->
+            {% if order.deleted_at %}
+            <div class="deleted-order-banner">
+                <div class="deleted-order-banner__content">
+                    <span class="deleted-order-banner__icon">⚠️</span>
+                    <div class="deleted-order-banner__text">
+                        <strong>Заказ удален</strong>
+                        <span>Этот заказ был удален {{ order.deleted_at_formatted }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="order-header-card">
+                <h2>Заказ {{ order.order_number }}</h2>
+                <div class="order-info-grid">
+                    <div class="order-info-item status-item">
+                        <span class="order-info-label">Статус:</span>
+                        <div class="order-info-value status-wrapper">
+                            <select id="orderStatusSelect" class="status-select-large status-select-large"
+                                    data-order-id="{{ order.id }}"
+                                    {% if order.deleted_at %}disabled{% endif %}>
+                                <option value="transit" {% if order.status=="transit" %}selected{% endif %}>В пути</option>
+                                <option value="delivered" {% if order.status=="delivered" %}selected{% endif %}>Доставлен</option>
+                                <option value="return_transit" {% if order.status=="return_transit" %}selected{% endif %}>Возврат (в пути)</option>
+                                <option value="returned_on_warehouse" {% if order.status=="returned_on_warehouse" %}selected{% endif %}>Возвращен на склад</option>
+                            </select>
+                            <span class="status-message" style="display: none;"></span>
+                        </div>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Дата создания:</span>
+                        <span class="order-info-value">{{ order.created_at_formatted }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-detail-wrapper">
+                <table class="order-detail-table">
+                    <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Граммы</th>
+                        <th>Закупочная цена</th>
+                        <th>Цена продажи</th>
+                        <th>Прибыль</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order.items_rel %}
+                    <tr data-item-id="{{ item.product_id }}"
+                        data-product-name="Тон {{ item.product.tone.tone }} ({{ item.product.length_cm }} см)"
+                        data-grams="{{ item.grams }}">
+                        <td>Тон {{ item.product.tone.tone }} ({{ item.product.length_cm }} см)</td>
+                        <td class="grams-cell">{{ item.grams }} г</td>
+                        <td class="purchase-price-cell">{{ "%.2f"|format(item.purchase_total) }} ₽</td>
+                        <td class="sale-price-cell">{{ "%.2f"|format(item.sale_total) }} ₽</td>
+                        <td class="profit-cell">{{ "%.2f"|format(item.profit_calculated) }} ₽</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="2" class="total-label"><strong>ИТОГО:</strong></td>
+                        <td class="total-purchase-price" id="totalPurchasePrice">0.00 ₽</td>
+                        <td class="total-sale-price" id="totalSalePrice">0.00 ₽</td>
+                        <td class="total-profit" id="totalProfit">0.00 ₽</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-actions">
+                <div class="delete-order-block">
+                    {% if not order.deleted_at %}
+                    <a href="/v1/orders/delete/{{ order.id }}" class="delete-button" id="deleteOrderButton" aria-label="Удалить заказ">
+                        <span class="delete-button__emoji" aria-hidden="true">🗑️</span>
+                        <span>Удалить заказ</span>
+                        <span class="delete-button__emoji" aria-hidden="true">🗑️</span>
+                    </a>
+                    {% endif %}
+                    <span class="delete-message" style="display: none;"></span>
+                </div>
+
+                <a href="/v1/orders/create" class="home-button" aria-label="Создать еще один заказ">
+                    <span class="home-button__emoji" aria-hidden="true">➕</span>
+                    <span>Создать еще один заказ</span>
+                    <span class="home-button__emoji" aria-hidden="true">➕</span>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<a href="/v1/orders/list" class="back-btn" role="button" aria-label="Вернуться к списку заказов">
+    ← Назад к списку
+</a>
+
+</body>
+</html>

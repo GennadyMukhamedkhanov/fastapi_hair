@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/order_list.css') }}">
+</head>
+<body class="orders-body">
+    <div class="orders-page">
+        <div class="orders-header">
+            <div>
+                <h1 class="orders-title">{{ title }}</h1>
+                <p class="orders-subtitle">Просмотр всех заказов и быстрый переход в карточку заказа.</p>
+            </div>
+
+            <div class="header-actions">
+                <!-- Фильтры по статусам (чекбоксы) -->
+                <div class="status-filters" id="statusFilters">
+                    <label class="status-checkbox">
+                        <input type="checkbox" name="status" value="IN_TRANSIT" {% if 'IN_TRANSIT' in selected_statuses %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span class="status-label status-in-transit">В пути</span>
+                    </label>
+
+                    <label class="status-checkbox">
+                        <input type="checkbox" name="status" value="DELIVERED" {% if 'DELIVERED' in selected_statuses %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span class="status-label status-delivered">Доставлен</span>
+                    </label>
+
+                    <label class="status-checkbox">
+                        <input type="checkbox" name="status" value="RETURN_IN_TRANSIT" {% if 'RETURN_IN_TRANSIT' in selected_statuses %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span class="status-label status-return-transit">Возврат (в пути)</span>
+                    </label>
+
+                    <label class="status-checkbox">
+                        <input type="checkbox" name="status" value="RETURNED_ON_WAREHOUSE" {% if 'RETURNED_ON_WAREHOUSE' in selected_statuses %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span class="status-label status-returned">Возвращен на склад</span>
+                    </label>
+
+                    <!-- НОВЫЙ ЧЕКБОКС ДЛЯ УДАЛЕННЫХ ЗАКАЗОВ -->
+                    <label class="status-checkbox">
+                        <input type="checkbox" name="status" value="DELETED" {% if 'DELETED' in selected_statuses %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span class="status-label status-deleted">Удаленные</span>
+                    </label>
+                </div>
+
+                <div class="orders-filters">
+                    <a
+                        href="#"
+                        class="orders-filter {% if not my_only %}is-active{% endif %}"
+                        data-my-only="false"
+                    >
+                        Все заказы
+                    </a>
+                    <a
+                        href="#"
+                        class="orders-filter {% if my_only %}is-active{% endif %}"
+                        data-my-only="true"
+                    >
+                        Мои заказы
+                    </a>
+                </div>
+
+                <!-- Кнопка Назад -->
+                <a href="/v1/orders/" class="back-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Назад
+                </a>
+            </div>
+        </div>
+
+        {% if orders %}
+        <div class="orders-table-card">
+            <div class="orders-table-wrap">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Номер</th>
+                            <th>Статус</th>
+                            <th>Продавец</th>
+                            <th>Дата</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr {% if order.status == 'DELETED' or order.status == 'deleted' %}class="order-deleted-row"{% endif %}>
+                            <td class="cell-nowrap order-number">
+                                {{ order.order_number }}
+                            </td>
+
+                            <td class="cell-nowrap">
+                                {% set status_class = '' %}
+                                {% set status_text = '' %}
+
+                                {% if order.status == 'IN_TRANSIT' or order.status == 'transit' %}
+                                    {% set status_class = 'status-in-transit' %}
+                                    {% set status_text = 'В пути' %}
+                                {% elif order.status == 'DELIVERED' or order.status == 'delivered' %}
+                                    {% set status_class = 'status-delivered' %}
+                                    {% set status_text = 'Доставлен' %}
+                                {% elif order.status == 'RETURN_IN_TRANSIT' or order.status == 'return_transit' %}
+                                    {% set status_class = 'status-return-in-transit' %}
+                                    {% set status_text = 'Возврат (в пути)' %}
+                                {% elif order.status == 'RETURNED_ON_WAREHOUSE' or order.status == 'returned_on_warehouse' %}
+                                    {% set status_class = 'status-returned-on-warehouse' %}
+                                    {% set status_text = 'Возвращен на склад' %}
+                                {% elif order.status == 'DELETED' or order.status == 'deleted' %}
+                                    {% set status_class = 'status-deleted' %}
+                                    {% set status_text = 'Удален' %}
+                                {% else %}
+                                    {% set status_class = '' %}
+                                    {% set status_text = order.status %}
+                                {% endif %}
+
+                                <span class="status-badge {{ status_class }}">
+                                    {{ status_text }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if order.seller %}
+                                    <span class="seller-name">{{ order.seller.username }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="cell-nowrap date-cell">
+                                {{ order.created_at.strftime("%d.%m.%Y %H:%M") }}
+                            </td>
+
+                            <td class="cell-nowrap">
+                                <a href="/v1/orders/{{ order.id }}" class="open-link">
+                                    Открыть →
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="orders-empty">
+            <div class="orders-empty-icon">📦</div>
+            <h2 class="orders-empty-title">Заказы не найдены</h2>
+            <p class="orders-empty-text">
+                Попробуйте изменить фильтры или создайте новый заказ.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    // Получаем текущие параметры из URL
+    function getCurrentFilters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const myOnly = urlParams.get('my_only') === 'true';
+
+        // Получаем булевы параметры для статусов
+        const transit = urlParams.get('transit') === 'true';
+        const delivered = urlParams.get('delivered') === 'true';
+        const returnTransit = urlParams.get('return_transit') === 'true';
+        const returnedOnWarehouse = urlParams.get('returned_on_warehouse') === 'true';
+        const deleted = urlParams.get('deleted') === 'true';  // НОВЫЙ ПАРАМЕТР
+
+        return {
+            myOnly,
+            transit,
+            delivered,
+            returnTransit,
+            returnedOnWarehouse,
+            deleted  // НОВЫЙ ПАРАМЕТР
+        };
+    }
+
+    // Обновляем состояние чекбоксов при загрузке
+    function updateCheckboxes() {
+        const filters = getCurrentFilters();
+
+        // Обновляем чекбоксы в соответствии с URL параметрами
+        const checkboxes = document.querySelectorAll('.status-filters input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            const value = checkbox.value;
+            if (value === 'IN_TRANSIT') checkbox.checked = filters.transit;
+            else if (value === 'DELIVERED') checkbox.checked = filters.delivered;
+            else if (value === 'RETURN_IN_TRANSIT') checkbox.checked = filters.returnTransit;
+            else if (value === 'RETURNED_ON_WAREHOUSE') checkbox.checked = filters.returnedOnWarehouse;
+            else if (value === 'DELETED') checkbox.checked = filters.deleted;  // НОВЫЙ ЧЕКБОКС
+        });
+    }
+
+    // Применяем фильтры
+    function applyFilters() {
+        const checkboxes = document.querySelectorAll('.status-filters input[type="checkbox"]');
+        const urlParams = new URLSearchParams(window.location.search);
+        const myOnly = urlParams.get('my_only') === 'true';
+
+        // Формируем новые параметры
+        const params = new URLSearchParams();
+        params.set('my_only', myOnly);
+
+        // Добавляем булевы параметры для каждого статуса
+        checkboxes.forEach(checkbox => {
+            const value = checkbox.value;
+            let paramName = '';
+
+            if (value === 'IN_TRANSIT') paramName = 'transit';
+            else if (value === 'DELIVERED') paramName = 'delivered';
+            else if (value === 'RETURN_IN_TRANSIT') paramName = 'return_transit';
+            else if (value === 'RETURNED_ON_WAREHOUSE') paramName = 'returned_on_warehouse';
+            else if (value === 'DELETED') paramName = 'deleted';  // НОВЫЙ ПАРАМЕТР
+
+            if (paramName) {
+                params.set(paramName, checkbox.checked);
+            }
+        });
+
+        // Строим новый URL
+        let newUrl = `/v1/orders/list?${params.toString()}`;
+        window.location.href = newUrl;
+    }
+
+    // Обработчик для чекбоксов
+    function initCheckboxes() {
+        const checkboxes = document.querySelectorAll('.status-filters input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                setTimeout(() => {
+                    applyFilters();
+                }, 50);
+            });
+        });
+    }
+
+    // Обработчик для кнопок "Все заказы" и "Мои заказы"
+    function initFilterButtons() {
+        const buttons = document.querySelectorAll('.orders-filter');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const myOnly = this.getAttribute('data-my-only') === 'true';
+                const currentFilters = getCurrentFilters();
+
+                const params = new URLSearchParams();
+                params.set('my_only', myOnly);
+                params.set('transit', currentFilters.transit);
+                params.set('delivered', currentFilters.delivered);
+                params.set('return_transit', currentFilters.returnTransit);
+                params.set('returned_on_warehouse', currentFilters.returnedOnWarehouse);
+                params.set('deleted', currentFilters.deleted);  // НОВЫЙ ПАРАМЕТР
+
+                let newUrl = `/v1/orders/list?${params.toString()}`;
+                window.location.href = newUrl;
+            });
+        });
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCheckboxes();
+        initCheckboxes();
+        initFilterButtons();
+    });
+    </script>
+</body>
+</html>

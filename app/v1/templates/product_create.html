@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- ✅ ИСПРАВЛЕНО: прямой путь к CSS -->
+    <link rel="stylesheet" href="/v1/static/css/product_create.css">
+</head>
+<body>
+<div class="page">
+    <div class="main-container">
+        <div class="card">
+            <h1 class="title">Создание товара</h1>
+            <p class="subtitle">Заполните форму нового товара</p>
+
+            {% if error_message %}
+                <div class="alert alert-error">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+
+            <form method="post" action="/v1/hairs/create" class="product-form">
+                <div class="form-group">
+                    <label for="tone_id">Оттенок</label>
+                    <select id="tone_id" name="tone_id" required>
+                        <option value="">Выберите оттенок</option>
+                        {% for tone in tones %}
+                            <option
+                                value="{{ tone.id }}"
+                                {% if form_data.get('tone_id')|string == tone.id|string %}selected{% endif %}
+                            >
+                                {{ tone.tone }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="length_cm">Длина (см)</label>
+                    <input
+                        type="number"
+                        id="length_cm"
+                        name="length_cm"
+                        min="10"
+                        max="100"
+                        required
+                        value="{{ form_data.get('length_cm', '') }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="purchase_price_per_100g">Закупочная цена за 100г</label>
+                    <input
+                        type="number"
+                        id="purchase_price_per_100g"
+                        name="purchase_price_per_100g"
+                        step="0.01"
+                        min="0.01"
+                        required
+                        value="{{ form_data.get('purchase_price_per_100g', '') }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="tax_rate">Налоговая ставка</label>
+                    <input
+                        type="number"
+                        id="tax_rate"
+                        name="tax_rate"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value="{{ form_data.get('tax_rate', 0.0) }}"
+                    >
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Создать товар</button>
+                    <button type="button" class="btn btn-home" onclick="location.href='/v1/index/'">
+                        🏠 На главную
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Боковое окно для добавления тона -->
+        <div class="side-panel">
+            <div class="side-card">
+                <h3 class="side-title">➕ Добавить тон</h3>
+                <p class="side-subtitle">Быстрое создание нового оттенка</p>
+
+                {% if tone_error_message %}
+                    <div class="alert alert-error tone-alert">
+                        {{ tone_error_message }}
+                    </div>
+                {% endif %}
+
+                {% if tone_success_message %}
+                    <div class="alert alert-success">
+                        {{ tone_success_message }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="/v1/hairs/create/tone" class="tone-form" id="toneForm">
+                    <div class="form-group">
+                        <label for="new_tone_name">Название тона</label>
+                        <input
+                            type="text"
+                            id="new_tone_name"
+                            name="tone_name"
+                            required
+                            placeholder="Например: OB6/12"
+                            maxlength="100"
+                        >
+                    </div>
+
+
+                    <button type="submit" class="btn btn-tone">Создать тон</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Опционально: автообновление select после добавления тона
+    // Или перенаправление с сообщением об успехе
+    document.getElementById('toneForm')?.addEventListener('submit', function(e) {
+        // Если нужно добавить AJAX отправку, можно раскомментировать
+        // и настроить обработку без перезагрузки страницы
+    });
+</script>
+</body>
+</html>

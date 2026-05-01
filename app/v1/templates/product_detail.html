@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/v1/static/css/product_detail.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>🧾 Карточка товара</h1>
+        <div class="button-group">
+            <button class="btn btn-home" onclick="location.href='/v1/index/'">🏠 На главную</button>
+            <button class="btn btn-back" onclick="location.href='/v1/hairs/'">← Назад к списку</button>
+        </div>
+    </div>
+
+    {% if product %}
+    <div class="product-card">
+
+        {% if success_message %}
+        <div class="success-message">
+            ✅ {{ success_message }}
+        </div>
+        {% endif %}
+
+        <div id="message-box"></div>
+
+        <form id="product-update-form">
+            <div class="product-main">
+                <div class="product-title-block">
+                    <h2>
+                        Тон:
+                        <span>{{ product.tone.tone if product.tone else "-" }}</span>
+                    </h2>
+                    <div class="product-meta">
+                        <h2>
+                            <span class="meta-badge">Длина: {{ product.length_cm }} см</span>
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="status-block">
+                        <span class="status
+                            {% if product.status == 'warehouse' %}status-warehouse
+                            {% elif product.status == 'transit' %}status-transit
+                            {% elif product.status == 'delivered' %}status-delivered
+                            {% elif product.status == 'return_transit' %}status-return
+                            {% endif %}">
+                            {% if product.status == 'warehouse' %}🏠 На складе
+                            {% elif product.status == 'transit' %}🚚 В пути
+                            {% elif product.status == 'delivered' %}✅ Продан
+                            {% elif product.status == 'return_transit' %}🔄 Возврат
+                            {% else %}{{ product.status }}
+                            {% endif %}
+                        </span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label class="label" for="purchase_price_per_100g">Цена закупки за 100г</label>
+                    <input
+                            id="purchase_price_per_100g"
+                            type="number"
+                            step="0.01"
+                            name="purchase_price_per_100g"
+                            value="{{ '%.2f'|format(product.purchase_price_per_100g) }}"
+                            class="value price input-field"
+                    >
+                </div>
+
+                <div class="detail-item">
+                    <label class="label" for="sale_price_per_100g">Цена продажи за 100г</label>
+                    <input
+                            id="sale_price_per_100g"
+                            type="number"
+                            step="0.01"
+                            name="sale_price_per_100g"
+                            value="{{ '%.2f'|format(product.sale_price_per_100g) }}"
+                            class="value price input-field"
+                    >
+                </div>
+
+                <div class="detail-item">
+                    <label class="label" for="stock_grams">Остаток на складе</label>
+                    <input
+                            id="stock_grams"
+                            type="number"
+                            name="stock_grams"
+                            value="{{ product.stock_grams }}"
+                            class="value input-field"
+                    >
+                </div>
+
+                <div class="detail-item">
+                    <label class="label" for="tax_rate">Налоговая ставка</label>
+                    <input
+                            id="tax_rate"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                            name="tax_rate"
+                            value="{{ product.tax_rate }}"
+                            class="value input-field"
+                    >
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Бронь до:</span>
+                    <span class="value">
+                        {% if product.booking %}
+                            {{ product.booking.strftime("%d.%m.%Y %H:%M") }}
+                        {% else %}
+                            нет брони
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <button type="submit" id="save-btn" class="btn btn-save">
+                    💾 Сохранить изменения
+                </button>
+
+                <button class="btn btn-cancel" onclick="location.href='/v1/hairs/{{ product.id }}'">
+                    ❌ Отмена
+                </button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>😕 Товар не найден</h2>
+        <p>Проверь ID товара или вернись к общему списку.</p>
+        <div class="empty-state-buttons">
+            <button class="btn btn-home" onclick="location.href='/v1/index/'">🏠 На главную</button>
+            <button class="btn btn-back" onclick="location.href='/v1/hairs/'">← К списку товаров</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+        const form = document.getElementById("product-update-form");
+        const saveBtn = document.getElementById("save-btn");
+        const messageBox = document.getElementById("message-box");
+
+        if (form) {
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                saveBtn.disabled = true;
+                saveBtn.textContent = "⏳ Сохраняем...";
+                messageBox.innerHTML = "";
+
+                const payload = {};
+
+                if (form.purchase_price_per_100g.value !== "") {
+                    payload.purchase_price_per_100g = form.purchase_price_per_100g.value;
+                }
+
+                if (form.sale_price_per_100g.value !== "") {
+                    payload.sale_price_per_100g = form.sale_price_per_100g.value;
+                }
+
+                if (form.tax_rate.value !== "") {
+                    payload.tax_rate = Number(form.tax_rate.value);
+                }
+
+                if (form.stock_grams.value !== "") {
+                    payload.stock_grams = Number(form.stock_grams.value);
+                }
+
+                try {
+                    const response = await fetch("/v1/hairs/{{ product.id }}", {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        let errorText = "Ошибка при сохранении";
+
+                        try {
+                            const errorData = await response.json();
+                            errorText = errorData.detail || JSON.stringify(errorData);
+                        } catch (_) {}
+
+                        messageBox.innerHTML = `
+                            <div class="error-message">
+                                ❌ ${errorText}
+                            </div>
+                        `;
+
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = "💾 Сохранить изменения";
+                        return;
+                    }
+
+                    window.location.href = "/v1/hairs/{{ product.id }}?updated=1";
+                } catch (error) {
+                    messageBox.innerHTML = `
+                        <div class="error-message">
+                            ❌ Не удалось отправить запрос
+                        </div>
+                    `;
+
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = "💾 Сохранить изменения";
+                }
+            });
+        }
+
+</script>
+</body>
+</html>

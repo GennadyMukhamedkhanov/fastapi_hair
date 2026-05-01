@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница — CRM Hair</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Собственный CSS -->
+    <link rel="stylesheet" href="/v1/static/css/index.css">
+</head>
+<body>
+    <!-- Фоновые декоративные элементы -->
+    <div class="bg-decoration">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="circle circle-4"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo-icon">
+            <i class="fas fa-store"></i>
+        </div>
+
+        <h1>💇‍♀️ CRM Hair</h1>
+        <p class="subtitle">Управление складом и заказами</p>
+
+        <div class="feature-grid">
+            <div class="feature-card" onclick="window.location.href='/v1/hairs/'">
+                <div class="feature-icon">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <h3>Каталог волос</h3>
+                <p>Просмотр и управление всем ассортиментом</p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/v1/hairs/create'">
+                <div class="feature-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3>Создать продукт</h3>
+                <p>Добавление новых товаров на склад</p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/v1/orders'">
+                <div class="feature-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Заказы</h3>
+                <p>Отслеживание и обработка заказов</p>
+            </div>
+
+            <div class="feature-card" onclick="showDemoMessage('статистика')">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Статистика</h3>
+                <p>Аналитика продаж и отчеты</p>
+            </div>
+        </div>
+
+        <div id="demoMessage" class="demo-message">
+            <i class="fas fa-info-circle"></i>
+            <span>⚡ Заглушка: <span id="actionName"></span> — здесь будет подключён API</span>
+        </div>
+
+        <div class="footer">
+            <i class="fas fa-code"></i>
+            <span>API Docs: </span>
+            <a href="/v1/docs" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Swagger UI
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function showDemoMessage(action) {
+            const messageBox = document.getElementById('demoMessage');
+            const actionSpan = document.getElementById('actionName');
+
+            actionSpan.textContent = action;
+            messageBox.classList.add('show');
+
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+
+            console.log(`🔘 Нажата кнопка: ${action}`);
+        }
+
+        // Приветственное сообщение
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                showDemoMessage('демонстрация интерфейса');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+
+
+
