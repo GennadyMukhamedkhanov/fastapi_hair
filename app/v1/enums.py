@@ -13,3 +13,4 @@ class OrderStatus(str, Enum):
     DELIVERED = "delivered"
     RETURN_TRANSIT = "return_transit"
     RETURNED_ON_WAREHOUSE = "returned_on_warehouse"
+    DELETED = "deleted"

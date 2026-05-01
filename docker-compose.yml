@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/home/fast/app
+      - ./alembic.ini:/home/fast/alembic.ini
+    env_file:
+      - ./app/.env  # ✅ Указываем путь к .env в папке app
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: hair_user
+      POSTGRES_PASSWORD: 198616Gm
+      POSTGRES_DB: hair_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hair_user -d hair_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

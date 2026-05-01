@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}" />
+  {% block head %}{% endblock %}
+  <script defer src="{{ url_for('static', path='js/auth.js') }}"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a href="#main-content" class="skip-link">Перейти к содержимому</a>
+
+  <div class="layout">
+    <header class="header">
+      <a href="/v1/index" class="home-button" aria-label="Перейти на главную страницу">
+        <span class="home-button__emoji" aria-hidden="true">🧑</span>
+        <span>Главная</span>
+      </a>
+
+      <div class="header-row">
+        <div class="brand">{{ app_name }}</div>
+
+        <nav class="nav" aria-label="Основная навигация">
+          <a href="/v1/auth_pages/renew">Продлить доступ</a>
+          <a href="/v1/auth_pages/logout">Выйти</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

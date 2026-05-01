@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Вход по email</h1>
+    <p class="muted">Только разрешённые пользователи могут получить доступ.</p>
+
+    <form method="post" action="/v1/auth_pages/login/send-code" class="form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="{{ email }}" required/>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <button class="btn btn-primary" type="submit">Отправить код</button>
+    </form>
+</section>
+{% endblock %}

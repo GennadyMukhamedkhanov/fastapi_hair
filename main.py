@@ -1,11 +1,7 @@
 import uvicorn
-
-from fastapi.staticfiles import StaticFiles
-
 from fastapi import FastAPI
-from app.v1.main import app_v1
-from fastapi.middleware.cors import CORSMiddleware
 
+from app.v1.main import app_v1
 
 # Создаём основное приложение
 app = FastAPI(title="CRM hair API", version="1.0.0")

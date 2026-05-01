@@ -1,21 +1,14 @@
-from fastapi import Depends, Form, Request, status
-from fastapi.exceptions import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from decimal import Decimal
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.common.db_depends import get_async_db
 from app.common.models import HairProduct
-from app.v1.helpers import money
 from app.v1.repositories.dependencies import get_product_repository
 from app.v1.repositories.helpers import get_list_status
 from app.v1.repositories.products import ProductRepository
-from app.v1.schemas.products import ProductCreateSchema, ProductUpdateSchema, ProductStatusSchema, ProductOutSchema
-from app.v1.services.tones import get_hair_tones_services
+from app.v1.schemas.products import ProductUpdateSchema, ProductStatusSchema
 from app.v1.utils.hair import tone_and_length_sort_key
-from app.v1.repositories.tones import HairToneRepository
-from app.v1.repositories.dependencies import get_product_repository, product_create_form, get_hair_tone_repository
-from app.v1.conf.templates import templates
-from fastapi.responses import HTMLResponse, RedirectResponse
 
 
 async def get_all_products_services(
@@ -51,42 +44,6 @@ async def get_product_services(
 ):
     product = await products_repo.get_product(session, product_id)
     return product
-
-
-async def create_product_services(
-        request: Request,
-        data: ProductCreateSchema = Depends(product_create_form),
-        session: AsyncSession = Depends(get_async_db),
-        products_repo: ProductRepository = Depends(get_product_repository),
-        hair_tone_repo: HairToneRepository = Depends(get_hair_tone_repository),
-) -> ProductOutSchema:
-    try:
-
-        product = await products_repo.create_product(session, data)
-        product_valid = ProductOutSchema.model_validate(product)
-
-        return product_valid
-
-    except HTTPException as exc:
-        tones = await get_hair_tones_services(session, hair_tone_repo)
-
-        return templates.TemplateResponse(
-            request=request,
-            name="product_create.html",
-            context={
-                "title": "Создание товара",
-                "tones": tones,
-                "error_message": exc.detail,
-                "form_data": {
-                    "tone_id": data.tone_id,
-                    "length_cm": data.length_cm,
-                    "purchase_price_per_100g": data.purchase_price_per_100g,
-                    "sale_price_per_100g": data.sale_price_per_100g,
-                    "tax_rate": data.tax_rate,
-                },
-            },
-            status_code=exc.status_code,
-        )
 
 
 async def update_product_services(

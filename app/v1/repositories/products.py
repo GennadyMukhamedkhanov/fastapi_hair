@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -35,8 +35,8 @@ class ProductRepository(CommonRepository):
         stmt = (
             select(self.model)
             .where(self.model.tone_id == data.tone_id,
-                   self.model.length_cm == data.length_cm
-                   ))
+                   self.model.length_cm == data.length_cm)
+        )
         result = await session.execute(stmt)
         existing = result.scalar_one_or_none()
         if existing:
@@ -48,8 +48,14 @@ class ProductRepository(CommonRepository):
         )
         session.add(product)
         await session.commit()
-        await session.refresh(product, ['tone'])
-        return product
+        result = await session.execute(
+            select(self.model)
+            .where(self.model.id == product.id)
+            .options(selectinload(self.model.tone))
+        )
+        product_with_tone = result.scalar_one()
+
+        return product_with_tone
 
     async def update_product(self, session: AsyncSession, product_id: int, data: ProductUpdateSchema) -> HairProduct:
         """ Обновление товара"""
@@ -66,58 +72,16 @@ class ProductRepository(CommonRepository):
         await session.refresh(product)
         return product
 
-    #
-    # async def get_products_list(
-    #         self,
-    #         db: AsyncSession,
-    #         page: int,
-    #         page_size: int,
-    #         filters: ProductFilterParamsSchema,
-    #         sort_params: SortParams
-    # ) -> dict:
-    #     """Получает список товаров с пагинацией"""
-    #     stmt_total = select(func.count(HairProduct.id))
-    #     stmt_products = select(HairProduct)
-    #
-    #     # Фильтры
-    #     if filters.tone_id:
-    #         stmt_total = stmt_total.where(HairProduct.tone_id == filters.tone_id)
-    #         stmt_products = stmt_products.where(HairProduct.tone_id == filters.tone_id)
-    #
-    #     if filters.length_cm:
-    #         stmt_total = stmt_total.where(HairProduct.length_cm == filters.length_cm)
-    #         stmt_products = stmt_products.where(HairProduct.length_cm == filters.length_cm)
-    #
-    #     if filters.in_stock_only:
-    #         stmt_total = stmt_total.where(HairProduct.stock_grams > 0)
-    #         stmt_products = stmt_products.where(HairProduct.stock_grams > 0)
-    #
-    #     if filters.min_stock:
-    #         stmt_total = stmt_total.where(HairProduct.stock_grams >= filters.min_stock)
-    #         stmt_products = stmt_products.where(HairProduct.stock_grams >= filters.min_stock)
-    #
-    #     # Total count
-    #     result = await db.execute(stmt_total)
-    #     total = result.scalar() or 0
-    #
-    #     # Корректируем страницу
-    #     page = max(1, min(page, (total // page_size) + 1)) if total > 0 else 1
-    #
-    #     # Продукты с сортировкой
-    #     sort_field = getattr(HairProduct, sort_params.sort_by, HairProduct.created_at)
-    #     sort_order = desc(sort_field) if sort_params.sort_order == "desc" else sort_field
-    #
-    #     stmt_products = stmt_products.order_by(sort_order) \
-    #         .offset((page - 1) * page_size) \
-    #         .limit(page_size)
-    #
-    #     result = await db.execute(stmt_products)
-    #     products = result.scalars().all()
-    #
-    #     return {
-    #         "items": products,
-    #         "total": total,
-    #         "page": page,
-    #         "page_size": page_size,
-    #         "pages": (total + page_size - 1) // page_size if page_size > 0 else 0
-    #     }
+    async def get_products_available_for_order(self, session: AsyncSession) -> list[HairProduct]:
+        stmt = (
+            select(self.model)
+            .where(
+                and_(
+                    self.model.status == ProductStatusEnum.WAREHOUSE.value,
+                    self.model.stock_grams > 0,
+                )
+            )
+            .options(selectinload(self.model.tone))
+        )
+        result = await session.execute(stmt)
+        return result.scalars().all()

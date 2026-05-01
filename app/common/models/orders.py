@@ -17,9 +17,9 @@ class OrderItem(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("hair_products.id"), index=True, comment="Ссылка на товар, который добавлен в позицию заказа")
     grams: Mapped[int] = mapped_column(Integer, comment="Количество граммов товара в данной позиции заказа")
     purchase_price_per_100g: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="Закупочная цена за 100 грамм на момент оформления позиции")
-    sale_price_per_100g: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="Цена продажи за 100 грамм в рамках данной позиции заказа")
-    total_sale_price: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="Итоговая стоимость продажи по данной позиции заказа")
-    profit: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="Прибыль, полученная с данной позиции заказа")
+    sale_price_per_100g: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="цена продажи за 100 грамм на момент оформления позиции")
+    total_sale_price: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="итоговая сумма продажи именно по этой позиции: grams × sale_price_per_100g/100")
+    profit: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="прибыль по этой позиции: ")
 
     order: Mapped["Order"] = relationship("Order", back_populates="items_rel")
     product: Mapped["HairProduct"] = relationship("HairProduct")
@@ -29,8 +29,8 @@ class Order(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, comment="Уникальный идентификатор заказа")
-    order_number: Mapped[str] = mapped_column(String(20), unique=True, index=True, comment="Уникальный номер заказа в человекочитаемом формате")
-    status: Mapped[str] = mapped_column(String(20), default=OrderStatus.IN_TRANSIT.value, comment="Текущий статус заказа")
+    order_number: Mapped[str] = mapped_column(String(50), unique=True, index=True, comment="Уникальный номер заказа в человекочитаемом формате")
+    status: Mapped[str] = mapped_column(String(25), default=OrderStatus.IN_TRANSIT.value, comment="Текущий статус заказа")
     total_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Общая стоимость заказа до финальных корректировок")
     final_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Итоговая стоимость заказа после всех изменений и корректировок")
     profit: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Общая прибыль по всему заказу")
@@ -41,3 +41,9 @@ class Order(Base):
     seller: Mapped["User"] = relationship("User", foreign_keys=[seller_id], back_populates="orders_as_seller")
     items_rel: Mapped[List["OrderItem"]] = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
+    @property
+    def deleted_at_formatted(self) -> str:
+        """Возвращает форматированную дату удаления"""
+        if self.deleted_at:
+            return self.deleted_at.strftime("%d %B %Y г. в %H:%M")
+        return ""

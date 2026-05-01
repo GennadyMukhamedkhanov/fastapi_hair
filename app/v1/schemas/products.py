@@ -15,7 +15,7 @@ class ProductCreateSchema(BaseModel):
     tone_id: Annotated[int, Field(gt=0, description="ID оттенка волос")]
     length_cm: Annotated[int, Field(ge=10, le=100, description="Длина волос в см")]
     purchase_price_per_100g: Annotated[Decimal, Field(decimal_places=2, gt=0, description="Закупочная цена за 100г")]
-    sale_price_per_100g: Annotated[Decimal, Field(decimal_places=2, gt=0, description="Цена продажи за 100г")]
+    sale_price_per_100g: Annotated[Decimal | None, Field(decimal_places=2, ge=0, description="Цена продажи за 100г")]
     tax_rate: Annotated[float, Field(default=0.0, ge=0.0, le=1.0, description="Налоговая ставка")]
 
 
@@ -25,19 +25,11 @@ class ProductUpdateSchema(BaseModel):
     purchase_price_per_100g: Annotated[
         Decimal | None, Field(ge=0, decimal_places=2, description="Новая закупочная цена")] = None
     sale_price_per_100g: Annotated[
-        Decimal | None, Field(ge=0, decimal_places=2, description="Новая цена продажи")] = None
+        Decimal | None, Field(gte=0, decimal_places=2, description="Новая цена продажи")] = None
     tax_rate: Annotated[float | None, Field(ge=0.0, le=1.0, description="Новая налоговая ставка")] = None
     stock_grams: Annotated[int | None, Field(ge=0, description="Новый остаток на складе")] = None
 
-    @model_validator(mode="after")
-    def validate_prices(self):
-        if (
-                self.purchase_price_per_100g is not None
-                and self.sale_price_per_100g is not None
-                and self.purchase_price_per_100g >= self.sale_price_per_100g
-        ):
-            raise ValueError("Закупочная цена должна быть меньше цены продажи")
-        return self
+
 
 
 class ProductStatusSchema(BaseModel):

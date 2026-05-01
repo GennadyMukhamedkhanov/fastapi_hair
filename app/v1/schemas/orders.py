@@ -4,10 +4,13 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from pydantic import Field, ConfigDict
 
 from app.v1.enums import OrderStatus
+from fastapi import Query
+from typing import Dict, Any
+from pydantic import BaseModel, Field
 
 
 class OrderItemCreate(BaseModel):
@@ -22,6 +25,7 @@ class OrderCreateSchema(BaseModel):
 
     items: Annotated[List[OrderItemCreate], Field(..., min_items=1, description="Позиции заказа")]
     seller_id: Annotated[Optional[int], Field(None, gt=0, description="ID продавца")]
+    seller_name: Annotated[str, Field(None, gt=0, description="Имя продавца")]
 
 
 class OrderStatusUpdateSchema(BaseModel):
@@ -58,3 +62,40 @@ class OrderOutSchema(BaseModel):
     created_at: Annotated[datetime, Field(description="Дата создания")]
     deleted_at: Annotated[Optional[datetime], Field(None, description="Дата удаления")]
     items: Annotated[List[OrderItemOutSchema], Field(description="Позиции заказа")]
+
+
+class OrderFormItem(BaseModel):
+    product_id: int
+    grams: int = 0  # По умолчанию 0, пользователь выбирает из [50,100,150,200,250,300]
+
+
+class OrderFormData(BaseModel):
+    items: Dict[int, int] = {}  # {product_id: grams}
+
+    @model_validator(mode='after')
+    def validate_items(self):
+        valid_grams = {50, 100, 150, 200, 250, 300}
+        invalid_items = []
+        for product_id, grams in self.items.items():
+            if grams not in valid_grams or grams == 0:
+                invalid_items.append((product_id, grams))
+
+        if invalid_items:
+            raise ValueError(
+                f"Недопустимые количества грамм: {invalid_items}. "
+                f"Допустимые значения: {valid_grams}"
+            )
+        return self
+
+
+class StatusUpdateSchema(BaseModel):
+    status: str
+    sale_prices: Annotated[dict[int, Decimal], Field(None, description="Цена продажи")]
+
+
+class FilterStatusSchema(BaseModel):
+    transit: bool = Field(default=False, description="Фильтр по товару в пути")
+    delivered: bool = Field(default=False, description="Фильтр по доставленному товару, проданому")
+    return_transit: bool = Field(default=False, description="Фильтр по возвращенному товару")
+    returned_on_warehouse: bool = Field(default=False, description="Фильтр по складу")
+    deleted: bool = Field(default=False, description="Фильтр по удаленному заказу")

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание заказа</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/order_create.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка с кнопками навигации -->
+        <div class="header-buttons">
+            <a href="javascript:history.back()" class="nav-btn back-btn">
+                <span class="btn-icon">←</span>
+                Назад
+            </a>
+            <a href="/v1/index" class="nav-btn home-btn">
+                <span class="btn-icon">🏠</span>
+                На главную
+            </a>
+        </div>
+
+        <h1 class="page-title">Создание заказа</h1>
+
+        <div id="order-error" class="alert alert-danger d-none" role="alert">
+            ⚠️ Выберите хотя бы один товар для заказа
+        </div>
+
+        <form method="post" action="/v1/orders/create" id="order-form">
+            <!-- Блок выбора службы доставки (ОБЯЗАТЕЛЬНЫЙ) -->
+            <div class="delivery-section">
+                <div class="delivery-header">
+                    <span class="delivery-icon">🚚</span>
+                    <h2 class="delivery-title">Служба доставки <span class="required-star">*</span></h2>
+                </div>
+                <div class="delivery-select-wrapper">
+                    <select name="delivery_service" id="delivery-service" class="delivery-select" required>
+                        <option value="" disabled selected>— Выберите службу доставки —</option>
+                        <option value="Авито">Авито</option>
+                        <option value="Яндекс">Яндекс</option>
+                        <option value="Почта">Почта</option>
+                        <option value="СДЕК">СДЕК</option>
+                        <option value="5Post">5Post</option>
+                        <option value="Иное">Иное</option>
+                    </select>
+                    <div class="delivery-warning" id="delivery-warning">
+                        ⚠️ Обязательно выберите службу доставки
+                    </div>
+                </div>
+                <div class="delivery-note">
+                    <span class="note-icon">ℹ️</span>
+                    <span>Выберите предпочтительную службу доставки для вашего заказа</span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>Тон</th>
+                            <th>Длина</th>
+                            <th>Остаток на складе</th>
+                            <th>Выбрать граммы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr data-tone="{{ product.tone.tone }}">
+                            <td data-label="Тон">{{ product.tone.tone }}</td>
+                            <td data-label="Длина">{{ product.length_cm }} см</td>
+                            <td data-label="Остаток">{{ product.stock_grams }} г</td>
+                            <td data-label="Выбрать граммы">
+                                <select name="product_{{ product.id }}" class="product-select">
+                                    <option value="0">0 г</option>
+                                    {% for grams in [50, 100, 150, 200, 250, 300] %}
+                                        {% if grams <= product.stock_grams %}
+                                            <option value="{{ grams }}">{{ grams }} г</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit" id="submit-btn">
+                    <span class="btn-icon">📦</span>
+                    Создать заказ
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("order-form");
+            const errorBlock = document.getElementById("order-error");
+            const selects = document.querySelectorAll(".product-select");
+            const deliverySelect = document.getElementById("delivery-service");
+            const deliveryWarning = document.getElementById("delivery-warning");
+            const submitBtn = document.getElementById("submit-btn");
+
+            // Функция для проверки валидности формы
+            function isFormValid() {
+                // Проверка выбора товаров
+                const hasSelectedItems = Array.from(selects).some(
+                    select => parseInt(select.value) > 0
+                );
+
+                // Проверка выбора службы доставки
+                const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
+
+                return hasSelectedItems && deliverySelected;
+            }
+
+            // Функция обновления состояния кнопки и предупреждений
+            function updateFormValidation() {
+                const hasSelectedItems = Array.from(selects).some(
+                    select => parseInt(select.value) > 0
+                );
+
+                const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
+
+                // Обновляем предупреждение для доставки
+                if (deliveryWarning) {
+                    if (!deliverySelected && deliverySelect && deliverySelect.value === "") {
+                        deliveryWarning.style.display = "flex";
+                        deliverySelect.style.borderColor = "#dc3545";
+                        deliverySelect.style.backgroundColor = "#fff5f5";
+                    } else {
+                        deliveryWarning.style.display = "none";
+                        deliverySelect.style.borderColor = "#e0e0e0";
+                        deliverySelect.style.backgroundColor = "white";
+                    }
+                }
+
+                // Блокируем/разблокируем кнопку отправки
+                if (submitBtn) {
+                    if (!hasSelectedItems || !deliverySelected) {
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = "0.5";
+                        submitBtn.style.cursor = "not-allowed";
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = "1";
+                        submitBtn.style.cursor = "pointer";
+                    }
+                }
+            }
+
+            // Функция для выделения строк с одинаковым тоном
+            function colorRowsByTone() {
+                const rows = document.querySelectorAll('.products-table tbody tr');
+                const toneColors = new Map();
+
+                const colors = [
+                    '#f3e5f5', '#e8eaf6', '#e0f2f1', '#fff3e0', '#fce4ec',
+                    '#e8f5e9', '#fff9c4', '#d1c4e9', '#b2dfdb', '#ffccbc',
+                    '#ffe0e0', '#e0f7fa', '#f1f8e9', '#fbe9e7', '#efebe9'
+                ];
+
+                let colorIndex = 0;
+
+                rows.forEach(row => {
+                    const tone = row.getAttribute('data-tone');
+                    if (!toneColors.has(tone)) {
+                        toneColors.set(tone, colors[colorIndex % colors.length]);
+                        colorIndex++;
+                    }
+                    row.style.backgroundColor = toneColors.get(tone);
+                    row.setAttribute('data-original-color', toneColors.get(tone));
+                });
+
+                rows.forEach(row => {
+                    row.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f8f9fa';
+                    });
+                    row.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = this.getAttribute('data-original-color');
+                    });
+                });
+            }
+
+            // Вызываем функции
+            colorRowsByTone();
+            updateFormValidation(); // Начальная проверка
+
+            // Обработчик изменения службы доставки
+            if (deliverySelect) {
+                deliverySelect.addEventListener("change", function() {
+                    updateFormValidation();
+
+                    // Если доставка выбрана, убираем общую ошибку
+                    if (this.value && this.value !== "") {
+                        errorBlock.classList.add("d-none");
+                    }
+                });
+            }
+
+            // Обработчик изменения выбора товаров
+            selects.forEach(function (select) {
+                select.addEventListener("change", function () {
+                    updateFormValidation();
+
+                    const hasSelectedItems = Array.from(selects).some(
+                        item => parseInt(item.value) > 0
+                    );
+
+                    if (hasSelectedItems && deliverySelect && deliverySelect.value) {
+                        errorBlock.classList.add("d-none");
+                    }
+                });
+            });
+
+            // Обработчик отправки формы
+            form.addEventListener("submit", function (event) {
+                const hasSelectedItems = Array.from(selects).some(
+                    select => parseInt(select.value) > 0
+                );
+
+                const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
+
+                if (!hasSelectedItems) {
+                    event.preventDefault();
+                    errorBlock.classList.remove("d-none");
+                    errorBlock.textContent = "⚠️ Выберите хотя бы один товар для заказа";
+                    errorBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+                    return;
+                }
+
+                if (!deliverySelected) {
+                    event.preventDefault();
+                    errorBlock.classList.remove("d-none");
+                    errorBlock.textContent = "⚠️ Пожалуйста, выберите службу доставки";
+                    errorBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+                    return;
+                }
+
+                errorBlock.classList.add("d-none");
+            });
+        });
+    </script>
+</body>
+</html>

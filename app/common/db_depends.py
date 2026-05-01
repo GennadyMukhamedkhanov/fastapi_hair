@@ -1,8 +1,6 @@
 import logging
 from collections.abc import AsyncGenerator
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.common.database import async_session_maker
 
 logger = logging.getLogger(__name__)
@@ -12,7 +10,6 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
     Предоставляет асинхронную сессию SQLAlchemy для работы с базой данных.
     Автоматически управляет транзакциями и закрытием сессии.
     """
-
     async with async_session_maker() as session:
         try:
             logger.debug("Database session created")
@@ -27,4 +24,3 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
             logger.debug("Database session closed")
-
