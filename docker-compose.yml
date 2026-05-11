@@ -1,4 +1,21 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: hair_shop_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - hair_network
+
   web:
     build: .
     volumes:
@@ -9,10 +26,17 @@ services:
       - ./app/.env
     environment:
       - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - hair_network
 
   db:
     image: postgres:15-alpine
@@ -28,6 +52,8 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - hair_network
 
   nginx:
     image: nginx:alpine
@@ -39,7 +65,28 @@ services:
     depends_on:
       - web
     restart: unless-stopped
+    networks:
+      - hair_network
+
+  # Опционально: Redis Commander для визуального управления (только для разработки)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hair_shop_redis_commander_dev
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - hair_network
 
 volumes:
   postgres_data:
   media_data:
+  redis_data:
+
+networks:
+  hair_network:
+    driver: bridge

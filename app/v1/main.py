@@ -2,12 +2,11 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.v1.middlewares.auth_middleware import AuthMiddleware
-from app.v1.routers import products
-from app.v1.routers import orders
-from app.v1.routers import index
 from app.v1.routers import auth_pages
+from app.v1.routers import index
+from app.v1.routers import orders
+from app.v1.routers import products
 from app.v1.routers import site_pages
-
 
 app_v1 = FastAPI(title="CRM hair API v1", version="1.0.0")
 

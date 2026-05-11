@@ -1,14 +1,35 @@
 import uvicorn
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
 from app.v1.main import app_v1
+from app.common.services.auth_memory import auth_memory_store
 
-# Создаём основное приложение
-app = FastAPI(title="CRM hair API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("🚀 Starting up main app...")
+    await auth_memory_store.init_redis()
+    print("✅ Auth memory store initialized with Redis")
+
+    yield
+
+    # Shutdown
+    print("🛑 Shutting down main app...")
+    await auth_memory_store.close_redis()
+    print("❌ Auth memory store closed")
+
+
+# Создаём основное приложение с lifespan
+app = FastAPI(
+    title="CRM hair API",
+    version="1.0.0",
+    lifespan=lifespan  # Добавляем lifespan здесь
+)
 
 # Монтируем версии
 app.mount("/v1", app_v1)
-
 
 
 # Корневой эндпоинт с информацией о версиях

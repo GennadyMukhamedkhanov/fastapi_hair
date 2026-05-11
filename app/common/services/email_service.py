@@ -22,3 +22,4 @@ async def send_verification_code(email: str, code: str) -> None:
         username=settings.mail_smtp_user,
         password=settings.mail_smtp_password,
     )
+
