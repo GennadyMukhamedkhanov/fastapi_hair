@@ -1,49 +1,85 @@
 name: fastapi-hair-prod
 
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    command: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+  redis:
+    image: redis:7-alpine
+    container_name: hair_shop_redis_prod
+    command: redis-server --appendonly yes --requirepass 198616Gmredis
     volumes:
-      - media_data:/home/fast/media
-    env_file:
-      - ./app/.env.prod
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
-      - DEBUG=False
-    depends_on:
-      db:
-        condition: service_healthy
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     restart: always
+    networks:
+      - hair_network
 
   db:
     image: postgres:16-alpine
+    container_name: hair_shop_postgres_prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=hair_user
-      - POSTGRES_PASSWORD=198616Gm
-      - POSTGRES_DB=hair_db
+      POSTGRES_USER: hair_user
+      POSTGRES_PASSWORD: 198616Gm
+      POSTGRES_DB: hair_db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hair_user -d hair_db"]
       interval: 30s
       timeout: 10s
       retries: 5
     restart: always
+    networks:
+      - hair_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: hair_shop_web_prod
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./app:/home/fast/app
+      - media_data:/home/fast/media
+    env_file:
+      - ./app/.env.prod
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=198616Gmredis
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - hair_network
 
   nginx:
     image: nginx:alpine
+    container_name: hair_shop_nginx_prod
     ports:
       - "80:80"
     volumes:
-      - ./app/common/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./app/common/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - media_data:/var/www/media
     depends_on:
       - web
     restart: always
+    networks:
+      - hair_network
 
 volumes:
   postgres_data:
   media_data:
+  redis_data:
+
+networks:
+  hair_network:
+    driver: bridge

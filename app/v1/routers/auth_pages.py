@@ -51,7 +51,7 @@ async def send_code_for_login(request: Request, email: str = Form(...)):
             status_code=403,
         )
 
-    code = auth_memory_store.generate_code(email)
+    code = await auth_memory_store.generate_code(email)
     await send_verification_code(email, code)
 
     return templates.TemplateResponse(
@@ -80,7 +80,7 @@ async def verify_login_code(
     email = email.strip().lower()
     code = code.strip()
 
-    ok, message = auth_memory_store.verify_code(email, code)
+    ok, message = await auth_memory_store.verify_code(email, code)
     if not ok:
         return templates.TemplateResponse(
             request=request,
@@ -140,7 +140,7 @@ async def send_code_for_renew(request: Request, email: str = Form(...)):
             status_code=403,
         )
 
-    code = auth_memory_store.generate_code(email)
+    code = await auth_memory_store.generate_code(email)
     await send_verification_code(email, code)
 
     return templates.TemplateResponse(
@@ -166,7 +166,7 @@ async def renew_confirm(
     email = email.strip().lower()
     code = code.strip()
 
-    ok, message = auth_memory_store.verify_code(email, code)
+    ok, message = await auth_memory_store.verify_code(email, code)
     if not ok:
         return templates.TemplateResponse(
             request=request,
