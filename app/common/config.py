@@ -6,8 +6,9 @@ from pathlib import Path
 from dataclasses import dataclass, field
 
 # ✅ Явно указываем путь к .env
-BASE_DIR = Path(__file__).resolve().parent.parent  # поднимаемся на 2 уровня (если config.py в app/v1/)
-env_path = BASE_DIR / ".env"
+BASE_DIR = Path(__file__).resolve().parent.parent
+env_path = BASE_DIR / ".env.prod"
+#env_path = BASE_DIR / ".env"
 
 if env_path.exists():
     load_dotenv(env_path)
@@ -56,7 +57,7 @@ class Settings:
     redis_password: str|None = os.getenv("REDIS_PASSWORD", None)
 
     class Config:
-        env_file = ".env"
+        env_file = ".env.prod"
         extra = "ignore"  # Игнорировать лишние переменные
 
 
