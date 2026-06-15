@@ -15,59 +15,6 @@
             </button>
         </div>
 
-        <form method="get" class="filters">
-            <div class="filter-group">
-                <input
-                    type="checkbox"
-                    name="warehouse"
-                    id="warehouse"
-                    value="true"
-                    {% if filters and filters["warehouse"] %}checked{% endif %}
-                >
-                <label for="warehouse">🏠 На складе</label>
-            </div>
-
-            <div class="filter-group">
-                <input
-                    type="checkbox"
-                    name="transit"
-                    id="transit"
-                    value="true"
-                    {% if filters and filters["transit"] %}checked{% endif %}
-                >
-                <label for="transit">🚚 В пути</label>
-            </div>
-
-            <div class="filter-group">
-                <input
-                    type="checkbox"
-                    name="delivered"
-                    id="delivered"
-                    value="true"
-                    {% if filters and filters["delivered"] %}checked{% endif %}
-                >
-                <label for="delivered">✅ Продан</label>
-            </div>
-
-            <div class="filter-group">
-                <input
-                    type="checkbox"
-                    name="return_transit"
-                    id="return_transit"
-                    value="true"
-                    {% if filters and filters["return_transit"] %}checked{% endif %}
-                >
-                <label for="return_transit">🔄 Возврат</label>
-            </div>
-
-            <div class="filter-actions">
-                <button type="submit" class="btn-apply">Применить фильтр</button>
-                <button type="button" class="btn-reset" onclick="location.href='/v1/hairs/'">
-                    Сбросить
-                </button>
-            </div>
-        </form>
-
         <div class="stats">
             📊 Найдено товаров: <strong>{{ products|length }}</strong>
         </div>
@@ -79,16 +26,15 @@
                         <th>Тон</th>
                         <th>Длина (см)</th>
                         <th>Цена закупки (100г)</th>
-                        <th>Цена продажи (100г)</th>
                         <th>Остаток (г)</th>
-                        <th>Статус</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for product in products %}
                     <tr
-                        class="product-row tone-{{ product.tone.tone|string|replace('.', '-') if product.tone else 'none' }}"
+                        class="product-row"
+                        data-tone="{{ product.tone.tone if product.tone else 'none' }}"
                         onclick="location.href='/v1/hairs/{{ product.id }}'"
                     >
                         <td>
@@ -103,39 +49,14 @@
                             {{ "%.2f"|format(product.purchase_price_per_100g) }} ₽
                         </td>
 
-                        <td class="price">
-                            {{ "%.2f"|format(product.sale_price_per_100g) }} ₽
-                        </td>
-
                         <td>
                             {{ product.stock_grams }} г
-                        </td>
-
-                        <td>
-                            <span class="status
-                                {% if product.status == 'warehouse' %} status-warehouse
-                                {% elif product.status == 'transit' %} status-transit
-                                {% elif product.status == 'delivered' %} status-delivered
-                                {% elif product.status == 'return_transit' %} status-return
-                                {% endif %}">
-                                {% if product.status == 'warehouse' %}
-                                    🏠 На складе
-                                {% elif product.status == 'transit' %}
-                                    🚚 В пути
-                                {% elif product.status == 'delivered' %}
-                                    ✅ Продан
-                                {% elif product.status == 'return_transit' %}
-                                    🔄 Возврат
-                                {% else %}
-                                    {{ product.status }}
-                                {% endif %}
-                            </span>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="no-data">
-                            😕 Нет товаров, соответствующих выбранным фильтрам
+                        <td colspan="4" class="no-data">
+                            😕 Нет товаров
                         </td>
                     </tr>
                     {% endfor %}
@@ -144,8 +65,10 @@
         </div>
 
         <div class="footer">
-            💡 Подсказка: используйте фильтры для отбора товаров по статусу
+            💡 Подсказка: нажмите на строку товара для просмотра деталей
         </div>
     </div>
+
+    <script src="/v1/static/js/products.js"></script>
 </body>
 </html>

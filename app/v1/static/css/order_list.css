@@ -548,3 +548,51 @@
         font-size: 12px;
     }
 }
+
+
+/* Кнопка На главную - ОВАЛЬНАЯ ФОРМА */
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 60px;  /* Овальная форма */
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    min-width: 130px;  /* Минимальная ширина для овальной формы */
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.nav-btn:active {
+    transform: translateY(0);
+}
+
+.nav-btn .btn-icon {
+    font-size: 16px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .nav-btn {
+        padding: 8px 20px;
+        font-size: 13px;
+        min-width: 110px;
+    }
+
+    .nav-btn .btn-icon {
+        font-size: 14px;
+    }
+}

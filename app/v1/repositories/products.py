@@ -12,12 +12,12 @@ from app.v1.schemas.products import ProductCreateSchema, ProductUpdateSchema
 class ProductRepository(CommonRepository):
     model = HairProduct
 
-    async def get_all_products(self, session: AsyncSession, status_list: list) -> list[HairProduct]:
+    async def get_all_products(self, session: AsyncSession) -> list[HairProduct]:
         """Получает список всех товаров"""
-        if status_list:
-            stmt = select(self.model).where(or_(*status_list)).options(selectinload(self.model.tone))
-        else:
-            stmt = select(self.model).options(selectinload(self.model.tone))
+        # if status_list:
+        #     stmt = select(self.model).where(or_(*status_list)).options(selectinload(self.model.tone))
+
+        stmt = select(self.model).options(selectinload(self.model.tone))
         result = await session.execute(stmt)
         products = result.scalars().all()
 
