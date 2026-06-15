@@ -12,28 +12,28 @@ from app.v1.utils.hair import tone_and_length_sort_key
 
 
 async def get_all_products_services(
-        status: ProductStatusSchema = Depends(),
+        #status: ProductStatusSchema = Depends(),
         session: AsyncSession = Depends(get_async_db),
         products_repo: ProductRepository = Depends(get_product_repository)
 ):
-    status_conditions = get_list_status(
-        status.warehouse,
-        status.transit,
-        status.delivered,
-        status.return_transit
-    )
+    # status_conditions = get_list_status(
+    #     status.warehouse,
+    #     status.transit,
+    #     status.delivered,
+    #     status.return_transit
+    # )
 
-    products = await products_repo.get_all_products(session, status_conditions)
+    products = await products_repo.get_all_products(session)
     products_sorted = sorted(products, key=tone_and_length_sort_key)
 
     return {
         "products": products_sorted,
-        "filters": {
-            "warehouse": status.warehouse,
-            "transit": status.transit,
-            "delivered": status.delivered,
-            "return_transit": status.return_transit,
-        }
+        # "filters": {
+        #     "warehouse": status.warehouse,
+        #     "transit": status.transit,
+        #     "delivered": status.delivered,
+        #     "return_transit": status.return_transit,
+        # }
     }
 
 

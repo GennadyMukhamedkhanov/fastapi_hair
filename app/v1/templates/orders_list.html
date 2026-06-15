@@ -15,6 +15,12 @@
             </div>
 
             <div class="header-actions">
+                <!-- Кнопка На главную -->
+                <button type="button" class="nav-btn home-btn" onclick="location.href='/v1/index'">
+                    <span class="btn-icon">🏠</span>
+                    На главную
+                </button>
+
                 <!-- Фильтры по статусам (чекбоксы) -->
                 <div class="status-filters" id="statusFilters">
                     <label class="status-checkbox">
@@ -170,7 +176,7 @@
         const delivered = urlParams.get('delivered') === 'true';
         const returnTransit = urlParams.get('return_transit') === 'true';
         const returnedOnWarehouse = urlParams.get('returned_on_warehouse') === 'true';
-        const deleted = urlParams.get('deleted') === 'true';  // НОВЫЙ ПАРАМЕТР
+        const deleted = urlParams.get('deleted') === 'true';
 
         return {
             myOnly,
@@ -178,7 +184,7 @@
             delivered,
             returnTransit,
             returnedOnWarehouse,
-            deleted  // НОВЫЙ ПАРАМЕТР
+            deleted
         };
     }
 
@@ -186,7 +192,6 @@
     function updateCheckboxes() {
         const filters = getCurrentFilters();
 
-        // Обновляем чекбоксы в соответствии с URL параметрами
         const checkboxes = document.querySelectorAll('.status-filters input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
             const value = checkbox.value;
@@ -194,7 +199,7 @@
             else if (value === 'DELIVERED') checkbox.checked = filters.delivered;
             else if (value === 'RETURN_IN_TRANSIT') checkbox.checked = filters.returnTransit;
             else if (value === 'RETURNED_ON_WAREHOUSE') checkbox.checked = filters.returnedOnWarehouse;
-            else if (value === 'DELETED') checkbox.checked = filters.deleted;  // НОВЫЙ ЧЕКБОКС
+            else if (value === 'DELETED') checkbox.checked = filters.deleted;
         });
     }
 
@@ -204,11 +209,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const myOnly = urlParams.get('my_only') === 'true';
 
-        // Формируем новые параметры
         const params = new URLSearchParams();
         params.set('my_only', myOnly);
 
-        // Добавляем булевы параметры для каждого статуса
         checkboxes.forEach(checkbox => {
             const value = checkbox.value;
             let paramName = '';
@@ -217,14 +220,13 @@
             else if (value === 'DELIVERED') paramName = 'delivered';
             else if (value === 'RETURN_IN_TRANSIT') paramName = 'return_transit';
             else if (value === 'RETURNED_ON_WAREHOUSE') paramName = 'returned_on_warehouse';
-            else if (value === 'DELETED') paramName = 'deleted';  // НОВЫЙ ПАРАМЕТР
+            else if (value === 'DELETED') paramName = 'deleted';
 
             if (paramName) {
                 params.set(paramName, checkbox.checked);
             }
         });
 
-        // Строим новый URL
         let newUrl = `/v1/orders/list?${params.toString()}`;
         window.location.href = newUrl;
     }
@@ -256,7 +258,7 @@
                 params.set('delivered', currentFilters.delivered);
                 params.set('return_transit', currentFilters.returnTransit);
                 params.set('returned_on_warehouse', currentFilters.returnedOnWarehouse);
-                params.set('deleted', currentFilters.deleted);  // НОВЫЙ ПАРАМЕТР
+                params.set('deleted', currentFilters.deleted);
 
                 let newUrl = `/v1/orders/list?${params.toString()}`;
                 window.location.href = newUrl;
