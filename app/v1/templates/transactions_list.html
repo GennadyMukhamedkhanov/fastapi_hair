@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — CRM Hair</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/v1/static/css/transactions_list.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация назад -->
+        <div class="nav-header">
+            <a href="/v1/wallets/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Назад к кошелькам
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-clock-rotate-left"></i>
+                {{ title }}
+            </h1>
+            <div class="spacer"></div>
+        </div>
+
+        <!-- Фильтры и поиск -->
+        <div class="filters-bar">
+            <div class="filters-left">
+                <div class="filter-group">
+                    <label for="type-filter">
+                        <i class="fas fa-filter"></i>
+                        Тип операции
+                    </label>
+                    <select id="type-filter" class="filter-select">
+                        <option value="all">Все типы</option>
+                        <option value="SALE">Продажа</option>
+                        <option value="DEPOSIT">Пополнение</option>
+                        <option value="WITHDRAWAL">Вывод</option>
+                        <option value="REFUND">Возврат</option>
+                        <option value="TRANSFER">Перевод</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="user-filter">
+                        <i class="fas fa-user"></i>
+                        Пользователь
+                    </label>
+                    <select id="user-filter" class="filter-select">
+                        <option value="all">Все пользователи</option>
+                        {% for user_name in users_names %}
+                            <option value="{{ user_name }}">{{ user_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="date-filter">
+                        <i class="fas fa-calendar"></i>
+                        Период
+                    </label>
+                    <select id="date-filter" class="filter-select">
+                        <option value="all">За всё время</option>
+                        <option value="today">Сегодня</option>
+                        <option value="week">Неделя</option>
+                        <option value="month">Месяц</option>
+                        <option value="quarter">Квартал</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filters-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Поиск по описанию..." class="search-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблица транзакций -->
+        <div class="table-container">
+            <table class="transactions-table" id="transactions-table">
+                <thead>
+                    <tr>
+                        <th class="col-id">ID</th>
+                        <th class="col-user">Пользователь</th>
+                        <th class="col-type">Тип операции</th>
+                        <th class="col-amount">Сумма</th>
+                        <th class="col-profit">Прибыль</th>
+                        <th class="col-description">Описание</th>
+                        <th class="col-date">Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if transactions %}
+                        {% for transaction in transactions %}
+                        <tr class="transaction-row"
+                            data-type="{{ transaction.transaction_type }}"
+                            data-username="{{ transaction.username or '' }}"
+                            data-description="{{ transaction.description or '' }}">
+                            <td class="col-id">
+                                <span class="transaction-id">#{{ transaction.id }}</span>
+                            </td>
+                            <td class="col-user">
+                                <div class="user-cell">
+                                    <div class="user-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="user-name">
+                                            {{ transaction.username or 'Неизвестно' }}
+                                        </span>
+                                        <span class="user-email">
+                                            {{ transaction.user_email or '—' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-type">
+                                <span class="type-badge type-{{ transaction.transaction_type.lower() }}">
+                                    <i class="fas
+                                        {% if transaction.transaction_type == 'SALE' %}fa-cart-shopping
+                                        {% elif transaction.transaction_type == 'DEPOSIT' %}fa-plus-circle
+                                        {% elif transaction.transaction_type == 'WITHDRAWAL' %}fa-minus-circle
+                                        {% elif transaction.transaction_type == 'REFUND' %}fa-rotate-left
+                                        {% elif transaction.transaction_type == 'TRANSFER' %}fa-arrows-left-right
+                                        {% else %}fa-circle
+                                        {% endif %}">
+                                    </i>
+                                    {{
+                                        'Продажа' if transaction.transaction_type == 'SALE' else
+                                        'Пополнение' if transaction.transaction_type == 'DEPOSIT' else
+                                        'Вывод' if transaction.transaction_type == 'WITHDRAWAL' else
+                                        'Возврат' if transaction.transaction_type == 'REFUND' else
+                                        'Перевод' if transaction.transaction_type == 'TRANSFER' else
+                                        transaction.transaction_type
+                                    }}
+                                </span>
+                            </td>
+                            <td class="col-amount">
+                                {% if transaction.amount is not none %}
+                                    <span class="amount-value {% if transaction.transaction_type in ['SALE', 'DEPOSIT', 'REFUND'] %}positive{% elif transaction.transaction_type == 'WITHDRAWAL' %}negative{% else %}neutral{% endif %}">
+                                        {% if transaction.transaction_type == 'WITHDRAWAL' %}-{% endif %}
+                                        {{ "%.2f"|format(transaction.amount|float) }} ₽
+                                    </span>
+                                {% else %}
+                                    <span class="amount-value neutral">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-profit">
+                                {% if transaction.profit_amount is not none %}
+                                    <span class="profit-value {% if transaction.profit_amount|float > 0 %}positive{% elif transaction.profit_amount|float < 0 %}negative{% else %}neutral{% endif %}">
+                                        {{ "%.2f"|format(transaction.profit_amount|float) }} ₽
+                                    </span>
+                                {% else %}
+                                    <span class="profit-value neutral">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-description">
+                                <span class="description-text" title="{{ transaction.description or '—' }}">
+                                    {{ transaction.description or '—' }}
+                                </span>
+                            </td>
+                            <td class="col-date">
+                                <span class="date-text">
+                                    <i class="far fa-clock"></i>
+                                    {{ transaction.created_at_display or '—' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty-row">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <span>Транзакции не найдены</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Пагинация -->
+        <div class="pagination">
+            <button class="page-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="page-info">Страница 1 из 1</span>
+            <button class="page-btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <i class="fas fa-code"></i>
+            <span>CRM Hair — История операций</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элементы фильтров
+            const typeFilter = document.getElementById('type-filter');
+            const userFilter = document.getElementById('user-filter');
+            const searchInput = document.getElementById('search-input');
+            const rows = document.querySelectorAll('.transaction-row');
+
+            function filterTable() {
+                const selectedType = typeFilter.value;
+                const selectedUser = userFilter.value;
+                const searchQuery = searchInput.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    const rowType = row.dataset.type || '';
+                    const rowUsername = row.dataset.username || '';
+                    const rowDescription = row.dataset.description || '';
+
+                    const typeMatch = selectedType === 'all' || rowType === selectedType;
+                    const userMatch = selectedUser === 'all' || rowUsername === selectedUser;
+                    const searchMatch = searchQuery === '' ||
+                                      rowDescription.toLowerCase().includes(searchQuery) ||
+                                      rowUsername.toLowerCase().includes(searchQuery) ||
+                                      row.querySelector('.user-name')?.textContent.toLowerCase().includes(searchQuery) ||
+                                      false;
+
+                    if (typeMatch && userMatch && searchMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // Добавляем обработчики событий
+            typeFilter.addEventListener('change', filterTable);
+            userFilter.addEventListener('change', filterTable);
+            searchInput.addEventListener('input', filterTable);
+
+            // Анимация появления строк
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.animationDelay = `${index * 0.05}s`;
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                }, 50);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -46,3 +46,9 @@ class UserRepository(CommonRepository):
         except Exception as e:
             await session.rollback()
             raise ValueError(f"Ошибка создания пользователя: {str(e)}")
+
+    async def get_list_name_users(self, session: AsyncSession) -> list[User]:
+        stmt = select(self.model)
+        result = await session.execute(stmt)
+        return result.scalars().all()
+

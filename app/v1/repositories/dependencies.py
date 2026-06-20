@@ -7,6 +7,7 @@ from fastapi import Form
 from decimal import Decimal
 
 from app.v1.repositories.tones import HairToneRepository
+from app.v1.repositories.transactions import TransactionRepository
 from app.v1.repositories.users import UserRepository
 from app.v1.repositories.wallets import WalletRepository
 from app.v1.schemas.products import ProductCreateSchema
@@ -30,6 +31,10 @@ async def get_user_repository() -> UserRepository:
 
 async def get_wallet_repository() -> WalletRepository:
     return WalletRepository()
+
+
+async def get_transaction_repository() -> TransactionRepository:
+    return TransactionRepository()
 
 
 async def product_create_form(

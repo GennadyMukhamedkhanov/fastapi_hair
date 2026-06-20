@@ -18,15 +18,25 @@ from app.v1.repositories.products import ProductRepository
 from app.v1.schemas.orders import StatusUpdateSchema
 from app.v1.services.orders import get_create_order_page_service, \
     create_order_from_form_service, get_orders_page_service, delete_order_service
+from app.v1.services.transactions import get_list_transactions_service
 
 router = APIRouter(
     tags=["transactions"]
 )
 
 
-@router.get("/", response_class=HTMLResponse, name="create_hair_product_page")
-async def get_main_page_orders(request: Request):
+@router.get("/", response_class=HTMLResponse, name="get_list_transactions")
+async def get_list_transactions(
+        request: Request,
+        data: list = Depends(get_list_transactions_service),
+):
     return templates.TemplateResponse(
         request=request,
-        name="orders.html"
+        name="transactions_list.html",
+        context={
+            "title": "Список транзакций",
+            "transactions": data["transactions"],
+            "users_names": data["users_names"],
+
+        }
     )
