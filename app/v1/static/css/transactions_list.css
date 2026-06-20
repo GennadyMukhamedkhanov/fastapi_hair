@@ -193,93 +193,6 @@ body {
     color: #94a3b8;
 }
 
-/* ===== Статистика ===== */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-}
-
-.stat-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 22px;
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.total-icon {
-    background: #eff6ff;
-    color: #3b82f6;
-}
-
-.income-icon {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.expense-icon {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.profit-icon {
-    background: #fef3c7;
-    color: #78350f;
-}
-
-.stat-info {
-    flex: 1;
-}
-
-.stat-label {
-    display: block;
-    font-size: 12px;
-    color: #94a3b8;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.stat-value {
-    display: block;
-    font-size: 22px;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.stat-value.positive {
-    color: #065f46;
-}
-
-.stat-value.negative {
-    color: #991b1b;
-}
-
-.stat-value.profit {
-    color: #78350f;
-}
-
 /* ===== Таблица ===== */
 .table-container {
     overflow-x: auto;
@@ -351,10 +264,16 @@ body {
 .col-type {
     min-width: 130px;
 }
-.col-amount {
+.col-sale {
+    min-width: 120px;
+}
+.col-cost {
     min-width: 120px;
 }
 .col-profit {
+    min-width: 120px;
+}
+.col-amount {
     min-width: 120px;
 }
 .col-description {
@@ -362,6 +281,9 @@ body {
 }
 .col-date {
     min-width: 150px;
+}
+.col-deleted {
+    min-width: 90px;
 }
 
 .transaction-id {
@@ -508,6 +430,36 @@ body {
     color: #94a3b8;
 }
 
+/* Удален */
+.deleted-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.deleted-yes {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.deleted-yes i {
+    color: #991b1b;
+}
+
+.deleted-no {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.deleted-no i {
+    color: #065f46;
+    font-size: 10px;
+}
+
 /* Пустая строка */
 .empty-row td {
     padding: 40px 20px;
@@ -588,10 +540,6 @@ body {
     .container {
         padding: 30px;
     }
-
-    .stats-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 @media (max-width: 1024px) {
@@ -665,19 +613,6 @@ body {
         flex-direction: column;
     }
 
-    .stats-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .stat-card {
-        padding: 14px 16px;
-    }
-
-    .stat-value {
-        font-size: 18px;
-    }
-
     .transactions-table {
         font-size: 13px;
     }
@@ -696,17 +631,26 @@ body {
     .col-type {
         min-width: 100px;
     }
-    .col-amount {
-        min-width: 100px;
+    .col-sale {
+        min-width: 80px;
+    }
+    .col-cost {
+        min-width: 80px;
     }
     .col-profit {
-        min-width: 100px;
+        min-width: 80px;
+    }
+    .col-amount {
+        min-width: 80px;
     }
     .col-description {
         min-width: 120px;
     }
     .col-date {
         min-width: 120px;
+    }
+    .col-deleted {
+        min-width: 70px;
     }
 
     .user-avatar {
@@ -747,10 +691,6 @@ body {
         font-size: 18px;
     }
 
-    .stats-row {
-        grid-template-columns: 1fr;
-    }
-
     .transactions-table {
         font-size: 12px;
     }
@@ -769,11 +709,17 @@ body {
     .col-type {
         min-width: 80px;
     }
-    .col-amount {
-        min-width: 80px;
+    .col-sale {
+        min-width: 70px;
+    }
+    .col-cost {
+        min-width: 70px;
     }
     .col-profit {
-        min-width: 80px;
+        min-width: 70px;
+    }
+    .col-amount {
+        min-width: 70px;
     }
     .col-description {
         min-width: 100px;
@@ -781,6 +727,9 @@ body {
     }
     .col-date {
         min-width: 100px;
+    }
+    .col-deleted {
+        min-width: 60px;
     }
 
     .user-avatar {

@@ -28,15 +28,15 @@ router = APIRouter(
 @router.get("/", response_class=HTMLResponse, name="get_list_transactions")
 async def get_list_transactions(
         request: Request,
-        data: list = Depends(get_list_transactions_service),
+        data: dict = Depends(get_list_transactions_service),
 ):
     return templates.TemplateResponse(
         request=request,
         name="transactions_list.html",
         context={
             "title": "Список транзакций",
-            "transactions": data["transactions"],
-            "users_names": data["users_names"],
+            "transactions": data.get("transactions"),
+            "users_names": data.get("users_names")
 
         }
     )

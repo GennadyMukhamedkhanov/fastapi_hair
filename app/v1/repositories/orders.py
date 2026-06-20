@@ -6,7 +6,7 @@ from sqlalchemy import select, func, case, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.common.models import Order, OrderItem
+from app.common.models import Order, OrderItem, Wallet, User
 from app.common.models.hairs import HairProduct, HairTone
 from app.v1.enums import ProductStatusEnum, OrderStatus
 from app.v1.repositories.common import CommonRepository
@@ -180,11 +180,13 @@ class OrderRepository(CommonRepository):
     ) -> Order:
         """Устанавливает цены продажи для товаров в заказе при доставке"""
 
-
         stmt = (
             select(self.model)
             .where(self.model.id == order_id)
-            .options(selectinload(self.model.items_rel).selectinload(OrderItem.product))
+            .options(
+                selectinload(self.model.items_rel).selectinload(OrderItem.product),
+                selectinload(self.model.seller).selectinload(User.wallet)
+            )
         )
         result = await session.execute(stmt)
         order = result.scalar_one_or_none()
@@ -243,9 +245,7 @@ class OrderRepository(CommonRepository):
         order.profit = total_profit
         order.status = OrderStatus.DELIVERED.value
 
-        await session.commit()
-        await session.refresh(order)
-
+        await session.flush()
         return order
 
     async def replace_status_on_return_transit(

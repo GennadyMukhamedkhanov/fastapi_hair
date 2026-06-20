@@ -90,10 +90,13 @@
                         <th class="col-id">ID</th>
                         <th class="col-user">Пользователь</th>
                         <th class="col-type">Тип операции</th>
-                        <th class="col-amount">Сумма</th>
+                        <th class="col-sale">Сумма продажи</th>
+                        <th class="col-cost">Себестоимость</th>
                         <th class="col-profit">Прибыль</th>
+                        <th class="col-amount">Сумма</th>
                         <th class="col-description">Описание</th>
-                        <th class="col-date">Дата</th>
+                        <th class="col-date">Дата создания</th>
+                        <th class="col-deleted">Удален</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,11 +145,19 @@
                                     }}
                                 </span>
                             </td>
-                            <td class="col-amount">
-                                {% if transaction.amount is not none %}
-                                    <span class="amount-value {% if transaction.transaction_type in ['SALE', 'DEPOSIT', 'REFUND'] %}positive{% elif transaction.transaction_type == 'WITHDRAWAL' %}negative{% else %}neutral{% endif %}">
-                                        {% if transaction.transaction_type == 'WITHDRAWAL' %}-{% endif %}
-                                        {{ "%.2f"|format(transaction.amount|float) }} ₽
+                            <td class="col-sale">
+                                {% if transaction.sale_amount is not none %}
+                                    <span class="amount-value neutral">
+                                        {{ "%.2f"|format(transaction.sale_amount|float) }} ₽
+                                    </span>
+                                {% else %}
+                                    <span class="amount-value neutral">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-cost">
+                                {% if transaction.cost_amount is not none %}
+                                    <span class="amount-value neutral">
+                                        {{ "%.2f"|format(transaction.cost_amount|float) }} ₽
                                     </span>
                                 {% else %}
                                     <span class="amount-value neutral">—</span>
@@ -161,6 +172,16 @@
                                     <span class="profit-value neutral">—</span>
                                 {% endif %}
                             </td>
+                            <td class="col-amount">
+                                {% if transaction.amount is not none %}
+                                    <span class="amount-value {% if transaction.transaction_type in ['SALE', 'DEPOSIT', 'REFUND'] %}positive{% elif transaction.transaction_type == 'WITHDRAWAL' %}negative{% else %}neutral{% endif %}">
+                                        {% if transaction.transaction_type == 'WITHDRAWAL' %}-{% endif %}
+                                        {{ "%.2f"|format(transaction.amount|float) }} ₽
+                                    </span>
+                                {% else %}
+                                    <span class="amount-value neutral">—</span>
+                                {% endif %}
+                            </td>
                             <td class="col-description">
                                 <span class="description-text" title="{{ transaction.description or '—' }}">
                                     {{ transaction.description or '—' }}
@@ -172,11 +193,22 @@
                                     {{ transaction.created_at_display or '—' }}
                                 </span>
                             </td>
+                            <td class="col-deleted">
+                                {% if transaction.is_deleted %}
+                                    <span class="deleted-badge deleted-yes">
+                                        <i class="fas fa-check-circle"></i> Да
+                                    </span>
+                                {% else %}
+                                    <span class="deleted-badge deleted-no">
+                                        <i class="fas fa-circle"></i> Нет
+                                    </span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="7" class="empty-row">
+                            <td colspan="10" class="empty-row">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox"></i>
                                     <span>Транзакции не найдены</span>

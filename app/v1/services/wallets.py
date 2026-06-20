@@ -12,9 +12,9 @@ from app.v1.utils.hair import tone_and_length_sort_key
 
 async def get_wallets_service(
         session: AsyncSession = Depends(get_async_db),
-        products_repo: WalletRepository = Depends(get_wallet_repository)
+        wallets_repo: WalletRepository = Depends(get_wallet_repository)
 ):
-    wallets_list_users = await products_repo.get_all_wallets_users(session)
+    wallets_list_users = await wallets_repo.get_all_wallets_users(session)
     total_result_all_wallets = sum(wallet.balance for wallet in wallets_list_users)
 
     return {
