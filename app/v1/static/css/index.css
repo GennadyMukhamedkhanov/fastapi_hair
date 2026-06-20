@@ -147,7 +147,7 @@ h1 {
 /* Сетка функций */
 .feature-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 24px;
     margin-bottom: 32px;
 }
@@ -168,10 +168,10 @@ h1 {
     border-color: #667eea;
 }
 
+/* Общие стили для иконок */
 .feature-icon {
     width: 70px;
     height: 70px;
-    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -180,19 +180,91 @@ h1 {
     transition: all 0.3s ease;
 }
 
-.feature-card:hover .feature-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transform: scale(1.05);
-}
-
 .feature-icon i {
     font-size: 32px;
-    color: #667eea;
     transition: all 0.3s ease;
 }
 
+.feature-card:hover .feature-icon {
+    transform: scale(1.05);
+}
+
 .feature-card:hover .feature-icon i {
-    color: white;
+    color: white !important;
+}
+
+/* ===== УНИКАЛЬНЫЕ ЦВЕТА ДЛЯ КАЖДОЙ ИКОНКИ ===== */
+
+/* 1. Кошелек - золотой */
+.wallet-icon {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.wallet-icon i {
+    color: #f59e0b;
+}
+
+.feature-card:hover .wallet-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* 2. Каталог волос - розовый */
+.catalog-icon {
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+}
+
+.catalog-icon i {
+    color: #ec4899;
+}
+
+.feature-card:hover .catalog-icon {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
+/* 3. Создать продукт - зеленый */
+.create-icon {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.create-icon i {
+    color: #10b981;
+}
+
+.feature-card:hover .create-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* 4. Заказы - синий */
+.orders-icon {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.orders-icon i {
+    color: #3b82f6;
+}
+
+.feature-card:hover .orders-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* 5. Статистика - фиолетовый */
+.stats-icon {
+    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+}
+
+.stats-icon i {
+    color: #8b5cf6;
+}
+
+.feature-card:hover .stats-icon {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+/* Стиль для баланса в кошельке */
+.wallet-balance {
+    font-weight: 700;
+    color: #f59e0b;
+    font-size: 1.1em;
 }
 
 .feature-card h3 {
@@ -296,6 +368,7 @@ h1 {
     .feature-grid {
         gap: 16px;
         margin-bottom: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
 
     .feature-card {
@@ -335,10 +408,40 @@ h1 {
     }
 
     .feature-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 16px 12px;
+    }
+
+    .feature-icon {
+        width: 45px;
+        height: 45px;
+        margin-bottom: 12px;
+        border-radius: 14px;
+    }
+
+    .feature-icon i {
+        font-size: 20px;
+    }
+
+    .feature-card h3 {
+        font-size: 14px;
+    }
+
+    .feature-card p {
+        font-size: 10px;
     }
 
     .footer {
         font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
     }
 }

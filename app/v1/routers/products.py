@@ -42,14 +42,12 @@ async def create_product_page(
 async def get_all_products(request: Request, data: dict = Depends(get_all_products_services)):
     """Получить список всех товаров"""
     products = data.get('products')
-    #filters = data.get('filters')
 
     return templates.TemplateResponse(
         request=request,
         name="products.html",
         context={
             "products": products,
-            #"filters": filters,
             "title": "Список товаров",
         },
     )

@@ -14,3 +14,18 @@ class OrderStatus(str, Enum):
     RETURN_TRANSIT = "return_transit"
     RETURNED_ON_WAREHOUSE = "returned_on_warehouse"
     DELETED = "deleted"
+
+
+# =====================================================
+# ENUM ДЛЯ ТИПОВ ТРАНЗАКЦИЙ
+# =====================================================
+class TransactionType(Enum):
+    """
+    Типы транзакций кошелька
+    """
+    SALE = "sale"  # - продажа - при продаже товара
+    RETURN = "return"  # "return" - возврат - в случае возврата товара после продажи
+    PURCHASE = "purchase"  # "purchase" - вывод в случае новой закупки
+    TRANSFER = "transfer"  # "transfer" - вывод - в случае каких-либо расходов
+    DEPOSIT = "deposit"  # "deposit" - пополнение (приход) - в случае пополнения кошелька
+    WITHDRAWAL = "withdrawal"  # "withdrawal" - вывод (расход) - в случае вывода средств

@@ -14,8 +14,6 @@ class ProductRepository(CommonRepository):
 
     async def get_all_products(self, session: AsyncSession) -> list[HairProduct]:
         """Получает список всех товаров"""
-        # if status_list:
-        #     stmt = select(self.model).where(or_(*status_list)).options(selectinload(self.model.tone))
 
         stmt = select(self.model).options(selectinload(self.model.tone))
         result = await session.execute(stmt)

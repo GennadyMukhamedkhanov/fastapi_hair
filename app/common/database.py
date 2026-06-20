@@ -59,9 +59,5 @@ __all__ = [
     "Base",
     "async_engine",
     "async_session_maker",
-    "User",
-    "Order",
-    "OrderItem",
-    "HairTone",
-    "HairProduct",
+
 ]

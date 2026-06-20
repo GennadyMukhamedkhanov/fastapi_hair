@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from app.v1.repositories.tones import HairToneRepository
 from app.v1.repositories.users import UserRepository
+from app.v1.repositories.wallets import WalletRepository
 from app.v1.schemas.products import ProductCreateSchema
 
 
@@ -25,6 +26,10 @@ def get_hair_tone_repository() -> HairToneRepository:
 
 async def get_user_repository() -> UserRepository:
     return UserRepository()
+
+
+async def get_wallet_repository() -> WalletRepository:
+    return WalletRepository()
 
 
 async def product_create_form(

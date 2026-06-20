@@ -312,7 +312,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiosmtplib", specifier = ">=5.1.0" },
+    { name = "aiosmtplib", specifier = "==5.1.0" },
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "bcrypt", specifier = "==4.0.1" },
