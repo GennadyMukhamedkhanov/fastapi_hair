@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List
 
-from sqlalchemy import String, Integer, ForeignKey, DateTime, func, DECIMAL
+from sqlalchemy import String, Integer, ForeignKey, DateTime, func, DECIMAL, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.common.database import Base
@@ -35,7 +35,7 @@ class Order(Base):
     final_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Итоговая стоимость заказа после всех изменений и корректировок")
     profit: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Общая прибыль по всему заказу")
     seller_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True, comment="Ссылка на пользователя-продавца, ответственного за заказ")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="Дата и время создания заказа")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=text("TIMEZONE('Europe/Moscow', NOW())"), comment="Дата и время создания заказа")
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="Дата и время мягкого удаления заказа, если он был удален")
 
     seller: Mapped["User"] = relationship("User", foreign_keys=[seller_id], back_populates="orders_as_seller")

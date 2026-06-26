@@ -63,3 +63,79 @@ class TransactionRepository(CommonRepository):
         stmt = select(self.model).where(self.model.description == order_number)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def create_purchase_transaction_repository(
+            self,
+            session: AsyncSession,
+            amount: Decimal,
+            description: str,
+            user_id: int,
+            wallet_id: int,
+    ) -> bool:
+        try:
+            stmt = select(Wallet).where(
+                Wallet.id == wallet_id,
+                Wallet.user_id == user_id
+            )
+            result = await session.execute(stmt)
+            wallet = result.scalar_one_or_none()
+
+            if wallet is None:
+                raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+            if amount <= 0:
+                raise HTTPException(status_code=400, detail="Сумма должна быть больше 0")
+
+            wallet.subtract_balance(amount)
+
+            transaction = WalletTransaction(
+                wallet_id=wallet_id,
+                user_id=user_id,
+                transaction_type=TransactionType.PURCHASE.value,
+                amount=amount,
+                description=description,
+            )
+            session.add(transaction)
+
+            await session.commit()
+            await session.refresh(transaction)
+            return True
+
+        except Exception:
+            await session.rollback()
+            raise
+
+    async def create_transfer_transaction_repository(
+            self,
+            session: AsyncSession,
+            amount: Decimal,
+            description: str,
+            user_id: int,
+            wallet_id: int,
+    ) -> bool:
+
+        stmt = select(Wallet).where(
+            Wallet.id == wallet_id,
+            Wallet.user_id == user_id
+        )
+        result = await session.execute(stmt)
+        wallet = result.scalar_one_or_none()
+
+        if wallet is None:
+            raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+        if amount <= 0:
+            raise HTTPException(status_code=400, detail="Сумма должна быть больше 0")
+
+        wallet.subtract_balance(amount)
+
+        transaction = WalletTransaction(
+            wallet_id=wallet_id,
+            user_id=user_id,
+            transaction_type=TransactionType.TRANSFER.value,
+            amount=amount,
+            description=description,
+        )
+        session.add(transaction)
+
+        return True

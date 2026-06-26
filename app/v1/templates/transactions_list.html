@@ -38,11 +38,12 @@
                     </label>
                     <select id="type-filter" class="filter-select">
                         <option value="all">Все типы</option>
-                        <option value="SALE">Продажа</option>
-                        <option value="DEPOSIT">Пополнение</option>
-                        <option value="WITHDRAWAL">Вывод</option>
-                        <option value="REFUND">Возврат</option>
-                        <option value="TRANSFER">Перевод</option>
+                        <option value="sale">Продажа</option>
+                        <option value="deposit">Пополнение</option>
+                        <option value="withdrawal">Вывод</option>
+                        <option value="return">Возврат</option>
+                        <option value="purchase">Новая закупка</option>
+                        <option value="transfer">Расходы</option>
                     </select>
                 </div>
 
@@ -70,7 +71,21 @@
                         <option value="week">Неделя</option>
                         <option value="month">Месяц</option>
                         <option value="quarter">Квартал</option>
+                        <option value="year">Год</option>
                     </select>
+                </div>
+
+                <div class="filter-group date-range-group">
+                    <label for="date-from">
+                        <i class="fas fa-calendar-plus"></i>
+                        С
+                    </label>
+                    <input type="date" id="date-from" class="filter-date">
+                    <label for="date-to">
+                        <i class="fas fa-calendar-minus"></i>
+                        По
+                    </label>
+                    <input type="date" id="date-to" class="filter-date">
                 </div>
             </div>
 
@@ -79,6 +94,10 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="search-input" placeholder="Поиск по описанию..." class="search-input">
                 </div>
+                <button id="clear-filters" class="clear-btn">
+                    <i class="fas fa-times"></i>
+                    Сбросить
+                </button>
             </div>
         </div>
 
@@ -103,9 +122,10 @@
                     {% if transactions %}
                         {% for transaction in transactions %}
                         <tr class="transaction-row"
-                            data-type="{{ transaction.transaction_type }}"
+                            data-type="{{ transaction.transaction_type.lower() }}"
                             data-username="{{ transaction.username or '' }}"
-                            data-description="{{ transaction.description or '' }}">
+                            data-description="{{ transaction.description or '' }}"
+                            data-date="{{ transaction.created_at if transaction.created_at else '' }}">
                             <td class="col-id">
                                 <span class="transaction-id">#{{ transaction.id }}</span>
                             </td>
@@ -127,20 +147,22 @@
                             <td class="col-type">
                                 <span class="type-badge type-{{ transaction.transaction_type.lower() }}">
                                     <i class="fas
-                                        {% if transaction.transaction_type == 'SALE' %}fa-cart-shopping
-                                        {% elif transaction.transaction_type == 'DEPOSIT' %}fa-plus-circle
-                                        {% elif transaction.transaction_type == 'WITHDRAWAL' %}fa-minus-circle
-                                        {% elif transaction.transaction_type == 'REFUND' %}fa-rotate-left
-                                        {% elif transaction.transaction_type == 'TRANSFER' %}fa-arrows-left-right
+                                        {% if transaction.transaction_type == 'sale' %}fa-cart-shopping
+                                        {% elif transaction.transaction_type == 'deposit' %}fa-plus-circle
+                                        {% elif transaction.transaction_type == 'withdrawal' %}fa-minus-circle
+                                        {% elif transaction.transaction_type == 'return' %}fa-rotate-left
+                                        {% elif transaction.transaction_type == 'purchase' %}fa-boxes-stacked
+                                        {% elif transaction.transaction_type == 'transfer' %}fa-arrows-left-right
                                         {% else %}fa-circle
                                         {% endif %}">
                                     </i>
                                     {{
-                                        'Продажа' if transaction.transaction_type == 'SALE' else
-                                        'Пополнение' if transaction.transaction_type == 'DEPOSIT' else
-                                        'Вывод' if transaction.transaction_type == 'WITHDRAWAL' else
-                                        'Возврат' if transaction.transaction_type == 'REFUND' else
-                                        'Перевод' if transaction.transaction_type == 'TRANSFER' else
+                                        'Продажа' if transaction.transaction_type == 'sale' else
+                                        'Пополнение' if transaction.transaction_type == 'deposit' else
+                                        'Вывод' if transaction.transaction_type == 'withdrawal' else
+                                        'Возврат' if transaction.transaction_type == 'return' else
+                                        'Новая закупка' if transaction.transaction_type == 'purchase' else
+                                        'Расходы' if transaction.transaction_type == 'transfer' else
                                         transaction.transaction_type
                                     }}
                                 </span>
@@ -174,8 +196,8 @@
                             </td>
                             <td class="col-amount">
                                 {% if transaction.amount is not none %}
-                                    <span class="amount-value {% if transaction.transaction_type in ['SALE', 'DEPOSIT', 'REFUND'] %}positive{% elif transaction.transaction_type == 'WITHDRAWAL' %}negative{% else %}neutral{% endif %}">
-                                        {% if transaction.transaction_type == 'WITHDRAWAL' %}-{% endif %}
+                                    <span class="amount-value {% if transaction.transaction_type in ['sale', 'deposit', 'return'] %}positive{% elif transaction.transaction_type in ['withdrawal', 'purchase', 'transfer'] %}negative{% else %}neutral{% endif %}">
+                                        {% if transaction.transaction_type in ['withdrawal', 'purchase', 'transfer'] %}-{% endif %}
                                         {{ "%.2f"|format(transaction.amount|float) }} ₽
                                     </span>
                                 {% else %}
@@ -240,31 +262,118 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Получаем элементы фильтров
             const typeFilter = document.getElementById('type-filter');
             const userFilter = document.getElementById('user-filter');
+            const dateFilter = document.getElementById('date-filter');
+            const dateFrom = document.getElementById('date-from');
+            const dateTo = document.getElementById('date-to');
             const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-filters');
             const rows = document.querySelectorAll('.transaction-row');
+
+            // Функция для парсинга даты из строки или объекта
+            function parseDate(dateStr) {
+                if (!dateStr) return null;
+                try {
+                    // Если это уже объект Date или строка в ISO формате
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return null;
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                } catch(e) {
+                    return null;
+                }
+            }
+
+            // Получение диапазона дат на основе выбранного периода
+            function getDateRange(period) {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                let from = null;
+                let to = null;
+
+                switch(period) {
+                    case 'today':
+                        from = new Date(today);
+                        to = new Date(today);
+                        break;
+                    case 'week':
+                        from = new Date(today);
+                        from.setDate(from.getDate() - 7);
+                        to = new Date(today);
+                        break;
+                    case 'month':
+                        from = new Date(today);
+                        from.setMonth(from.getMonth() - 1);
+                        to = new Date(today);
+                        break;
+                    case 'quarter':
+                        from = new Date(today);
+                        from.setMonth(from.getMonth() - 3);
+                        to = new Date(today);
+                        break;
+                    case 'year':
+                        from = new Date(today);
+                        from.setFullYear(from.getFullYear() - 1);
+                        to = new Date(today);
+                        break;
+                    case 'all':
+                    default:
+                        return { from: null, to: null };
+                }
+                return { from, to };
+            }
 
             function filterTable() {
                 const selectedType = typeFilter.value;
                 const selectedUser = userFilter.value;
                 const searchQuery = searchInput.value.toLowerCase().trim();
+                const selectedPeriod = dateFilter.value;
+
+                // Получаем даты из полей ввода или из периода
+                let fromDate = dateFrom.value ? parseDate(dateFrom.value) : null;
+                let toDate = dateTo.value ? parseDate(dateTo.value) : null;
+
+                // Если выбран предустановленный период и не указаны свои даты
+                if (selectedPeriod !== 'all' && !dateFrom.value && !dateTo.value) {
+                    const range = getDateRange(selectedPeriod);
+                    fromDate = range.from;
+                    toDate = range.to;
+                }
 
                 rows.forEach(row => {
                     const rowType = row.dataset.type || '';
                     const rowUsername = row.dataset.username || '';
                     const rowDescription = row.dataset.description || '';
+                    const rowDateStr = row.dataset.date || '';
+                    const rowDate = rowDateStr ? parseDate(rowDateStr) : null;
 
+                    // Фильтр по типу
                     const typeMatch = selectedType === 'all' || rowType === selectedType;
+
+                    // Фильтр по пользователю
                     const userMatch = selectedUser === 'all' || rowUsername === selectedUser;
+
+                    // Поиск по описанию
                     const searchMatch = searchQuery === '' ||
                                       rowDescription.toLowerCase().includes(searchQuery) ||
                                       rowUsername.toLowerCase().includes(searchQuery) ||
                                       row.querySelector('.user-name')?.textContent.toLowerCase().includes(searchQuery) ||
                                       false;
 
-                    if (typeMatch && userMatch && searchMatch) {
+                    // Фильтр по дате
+                    let dateMatch = true;
+                    if (fromDate && rowDate) {
+                        if (rowDate < fromDate) dateMatch = false;
+                    }
+                    if (toDate && rowDate) {
+                        // Добавляем 1 день к toDate, чтобы включить весь день
+                        const endDate = new Date(toDate);
+                        endDate.setDate(endDate.getDate() + 1);
+                        if (rowDate >= endDate) dateMatch = false;
+                    }
+
+                    if (typeMatch && userMatch && searchMatch && dateMatch) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
@@ -272,10 +381,41 @@
                 });
             }
 
-            // Добавляем обработчики событий
+            // Обработчики событий
             typeFilter.addEventListener('change', filterTable);
             userFilter.addEventListener('change', filterTable);
+            dateFilter.addEventListener('change', function() {
+                // Если выбран период, очищаем поля дат
+                if (this.value !== 'all') {
+                    dateFrom.value = '';
+                    dateTo.value = '';
+                }
+                filterTable();
+            });
+            dateFrom.addEventListener('change', function() {
+                if (this.value) {
+                    dateFilter.value = 'all';
+                }
+                filterTable();
+            });
+            dateTo.addEventListener('change', function() {
+                if (this.value) {
+                    dateFilter.value = 'all';
+                }
+                filterTable();
+            });
             searchInput.addEventListener('input', filterTable);
+
+            // Сброс фильтров
+            clearBtn.addEventListener('click', function() {
+                typeFilter.value = 'all';
+                userFilter.value = 'all';
+                dateFilter.value = 'all';
+                dateFrom.value = '';
+                dateTo.value = '';
+                searchInput.value = '';
+                filterTable();
+            });
 
             // Анимация появления строк
             rows.forEach((row, index) => {

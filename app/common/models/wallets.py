@@ -7,7 +7,7 @@ from sqlalchemy import (
     Numeric, String, Text, ForeignKey,
     DateTime, Index, CheckConstraint, Integer
 )
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.common.database import Base
@@ -40,8 +40,8 @@ class Wallet(Base):
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=func.now(),
-        onupdate=func.now(),
+        default=text("TIMEZONE('Europe/Moscow', NOW())"),
+        onupdate=text("TIMEZONE('Europe/Moscow', NOW())"),
         nullable=False
     )
 
@@ -167,7 +167,7 @@ class WalletTransaction(Base):
     # ВРЕМЕННЫЕ МЕТКИ
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=func.now(),
+        default=text("TIMEZONE('Europe/Moscow', NOW())"),
         nullable=False,
         index=True
     )

@@ -1,0 +1,533 @@
+/* Основные стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Карточка */
+.wallet-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wallet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Заголовок ===== */
+.wallet-header {
+    background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+    padding: 20px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.wallet-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wallet-title i {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 26px;
+}
+
+/* ===== Кнопки навигации в шапке ===== */
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+}
+
+.nav-btn i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.nav-btn .nav-text {
+    font-size: 13px;
+}
+
+/* Подсказка при наведении */
+.nav-tooltip {
+    display: none;
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.nav-btn:hover .nav-tooltip {
+    display: block;
+}
+
+/* Кнопка "Кошельки" */
+.btn-wallets {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-wallets:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-wallets:hover i {
+    transform: translateX(-3px);
+}
+
+/* Кнопка "Главная" */
+.btn-home {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-home:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-home:hover i {
+    transform: scale(1.1);
+}
+
+/* ===== Бейдж пользователя ===== */
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 18px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.user-badge i {
+    color: white;
+    font-size: 20px;
+}
+
+.user-name {
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* ===== Содержимое ===== */
+.wallet-content {
+    padding: 25px 35px 35px;
+}
+
+/* ===== Ряды кнопок ===== */
+.actions-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.top-row {
+    margin-bottom: 20px;
+}
+
+.bottom-row {
+    margin-top: 20px;
+}
+
+.actions-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.left-group {
+    justify-content: flex-start;
+    flex: 1;
+}
+
+.right-group {
+    justify-content: flex-end;
+}
+
+/* ===== Кнопки действий ===== */
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px 22px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.5));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.action-btn:hover::before {
+    opacity: 1;
+}
+
+.action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.action-btn:hover .btn-icon {
+    transform: scale(1.05);
+}
+
+.btn-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-title {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 3px;
+}
+
+.btn-sub {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+/* ===== Цвета кнопок ===== */
+
+/* Закупка */
+.btn-purchase {
+    border-color: #0ea5e9;
+    background: #f0f9ff;
+}
+.btn-purchase .btn-icon {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+.btn-purchase:hover {
+    border-color: #0ea5e9;
+    background: #e0f2fe;
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
+}
+
+/* Расходы */
+.btn-expenses {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+.btn-expenses .btn-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.btn-expenses:hover {
+    border-color: #f59e0b;
+    background: #fef3c7;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+}
+
+/* Пополнение */
+.btn-replenish {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+.btn-replenish .btn-icon {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+.btn-replenish:hover {
+    border-color: #22c55e;
+    background: #dcfce7;
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+}
+
+/* Вывод */
+.btn-withdraw {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+.btn-withdraw .btn-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.btn-withdraw:hover {
+    border-color: #ef4444;
+    background: #fee2e2;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
+}
+
+/* ===== Баланс ===== */
+.balance-block {
+    text-align: center;
+    padding: 15px 0 10px;
+}
+
+.balance-amount {
+    font-size: 56px;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: 1px;
+    word-break: break-word;
+    text-shadow: 0 2px 4px rgba(34, 197, 94, 0.1);
+}
+
+/* ===== Подвал ===== */
+.wallet-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.footer-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 300;
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 820px) {
+    .wallet-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .header-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .wallet-title {
+        font-size: 20px;
+        justify-content: center;
+    }
+
+    .nav-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .user-badge {
+        align-self: center;
+    }
+
+    .actions-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .actions-group {
+        justify-content: center !important;
+        width: 100%;
+    }
+
+    .action-btn {
+        min-width: 150px;
+        max-width: 100%;
+        flex: 1 1 200px;
+    }
+
+    .wallet-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wallet-title {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        padding: 6px 14px;
+        font-size: 12px;
+    }
+
+    .nav-btn .nav-text {
+        font-size: 12px;
+    }
+
+    .balance-amount {
+        font-size: 40px;
+    }
+
+    .action-btn {
+        padding: 12px 16px;
+        min-width: 130px;
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .btn-title {
+        font-size: 14px;
+    }
+    .btn-sub {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .wallet-card {
+        border-radius: 15px;
+    }
+
+    .wallet-header {
+        padding: 14px 16px;
+    }
+
+    .wallet-title {
+        font-size: 16px;
+    }
+
+    .wallet-title i {
+        font-size: 20px;
+    }
+
+    .nav-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .nav-btn .nav-text {
+        display: none;
+    }
+
+    .nav-btn i {
+        font-size: 18px;
+    }
+
+    .nav-tooltip {
+        display: none !important;
+    }
+
+    .user-name {
+        font-size: 13px;
+    }
+
+    .balance-amount {
+        font-size: 32px;
+    }
+
+    .actions-group {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .action-btn {
+        min-width: 100%;
+        max-width: 100%;
+        padding: 12px 16px;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+}

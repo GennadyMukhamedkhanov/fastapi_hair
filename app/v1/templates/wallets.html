@@ -56,7 +56,7 @@
         <div class="wallets-grid">
             {% if wallets_list_users %}
                 {% for wallet in wallets_list_users %}
-                <div class="wallet-card fade-in">
+                <div class="wallet-card fade-in" data-user-id="{{ wallet.user_id }}" onclick="openWallet({{ wallet.user_id }})">
                     <div class="wallet-card-header">
                         <div class="wallet-user-avatar">
                             <i class="fas fa-user"></i>
@@ -80,6 +80,9 @@
                             <i class="far fa-clock"></i>
                             {{ wallet.updated_at.strftime('%d.%m.%Y %H:%M') if wallet.updated_at else '—' }}
                         </span>
+                        <span class="wallet-click-hint">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
                     </div>
                 </div>
                 {% endfor %}
@@ -99,12 +102,39 @@
     </div>
 
     <script>
+        // Функция открытия страницы кошелька
+        function openWallet(userId) {
+            if (userId) {
+                // Перенаправляем на страницу деталей кошелька
+                window.location.href = `/v1/wallets/${userId}`;
+            }
+        }
+
         // Добавляем анимацию для карточек
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.wallet-card');
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${index * 0.08}s`;
             });
+
+            // Добавляем эффект наведения с курсором pointer
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+            });
+        });
+
+        // Обработчик нажатия Enter/Space для доступности
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.wallet-card');
+                if (card) {
+                    e.preventDefault();
+                    const userId = card.getAttribute('data-user-id');
+                    if (userId) {
+                        openWallet(parseInt(userId));
+                    }
+                }
+            }
         });
     </script>
 </body>

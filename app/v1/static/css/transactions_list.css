@@ -108,6 +108,7 @@ body {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .filter-group {
@@ -123,6 +124,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     color: #475569;
+    white-space: nowrap;
 }
 
 .filter-group label i {
@@ -153,9 +155,38 @@ body {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.date-range-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-date {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #1e293b;
+    background: white;
+    outline: none;
+    transition: all 0.3s ease;
+    max-width: 150px;
+}
+
+.filter-date:hover {
+    border-color: #667eea;
+}
+
+.filter-date:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .filters-right {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
 .search-box {
@@ -191,6 +222,32 @@ body {
 
 .search-input::placeholder {
     color: #94a3b8;
+}
+
+.clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    color: #64748b;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+
+.clear-btn i {
+    font-size: 13px;
 }
 
 /* ===== Таблица ===== */
@@ -359,9 +416,14 @@ body {
     color: #991b1b;
 }
 
-.type-refund {
+.type-return {
     background: #fef3c7;
     color: #78350f;
+}
+
+.type-purchase {
+    background: #cffafe;
+    color: #0e7490;
 }
 
 .type-transfer {
@@ -554,10 +616,12 @@ body {
 
     .filters-left {
         width: 100%;
+        flex-wrap: wrap;
     }
 
     .filter-group {
         flex: 1;
+        min-width: 200px;
     }
 
     .filter-select {
@@ -565,12 +629,23 @@ body {
         min-width: unset;
     }
 
+    .date-range-group {
+        flex-wrap: wrap;
+    }
+
+    .filter-date {
+        max-width: 100%;
+        flex: 1;
+    }
+
     .filters-right {
         width: 100%;
+        flex-wrap: wrap;
     }
 
     .search-box {
-        width: 100%;
+        flex: 1;
+        min-width: 200px;
     }
 
     .search-input {
@@ -611,6 +686,32 @@ body {
 
     .filters-left {
         flex-direction: column;
+    }
+
+    .filter-group {
+        min-width: 100%;
+    }
+
+    .date-range-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-date {
+        max-width: 100%;
+    }
+
+    .filters-right {
+        flex-direction: column;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .clear-btn {
+        width: 100%;
+        justify-content: center;
     }
 
     .transactions-table {
