@@ -1,8 +1,8 @@
-"""initial_clean
+"""Initial migration with all tables
 
-Revision ID: 4dc56c1a274d
+Revision ID: 84c3e2bf9616
 Revises: 
-Create Date: 2026-05-01 14:57:58.848748
+Create Date: 2026-06-16 16:57:07.488313
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4dc56c1a274d'
+revision: str = '84c3e2bf9616'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -42,6 +42,13 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
+    op.create_table('wallets',
+    sa.Column('id', sa.Integer(), server_default='1', autoincrement=False, nullable=False),
+    sa.Column('balance', sa.Numeric(precision=12, scale=2), server_default='0.00', nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.CheckConstraint('balance >= 0', name='balance_non_negative'),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('hair_products',
     sa.Column('id', sa.Integer(), nullable=False, comment='Уникальный идентификатор товара'),
     sa.Column('tone_id', sa.Integer(), nullable=False, comment='Ссылка на оттенок, к которому относится товар'),
@@ -74,6 +81,33 @@ def upgrade() -> None:
     op.create_index(op.f('ix_orders_id'), 'orders', ['id'], unique=False)
     op.create_index(op.f('ix_orders_order_number'), 'orders', ['order_number'], unique=True)
     op.create_index(op.f('ix_orders_seller_id'), 'orders', ['seller_id'], unique=False)
+    op.create_table('wallet_transactions',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('wallet_id', sa.Integer(), nullable=False),
+    sa.Column('transaction_type', sa.String(length=20), nullable=False),
+    sa.Column('sale_amount', sa.Numeric(precision=12, scale=2), nullable=True),
+    sa.Column('cost_amount', sa.Numeric(precision=12, scale=2), nullable=True),
+    sa.Column('profit_amount', sa.Numeric(precision=12, scale=2), nullable=True),
+    sa.Column('amount', sa.Numeric(precision=12, scale=2), nullable=True, comment='Сумма транзакции'),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('created_by_user', sa.String(length=50), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('is_deleted', sa.Boolean(), server_default='false', nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
+    sa.CheckConstraint('amount IS NULL OR amount >= 0', name='amount_non_negative'),
+    sa.CheckConstraint('cost_amount IS NULL OR cost_amount >= 0', name='cost_non_negative'),
+    sa.CheckConstraint('profit_amount IS NULL OR profit_amount >= 0', name='profit_non_negative'),
+    sa.CheckConstraint('sale_amount IS NULL OR sale_amount >= 0', name='sale_non_negative'),
+    sa.ForeignKeyConstraint(['wallet_id'], ['wallets.id'], ondelete='RESTRICT'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('ix_transactions_created_deleted', 'wallet_transactions', ['created_at', 'is_deleted'], unique=False)
+    op.create_index('ix_transactions_type_created', 'wallet_transactions', ['transaction_type', 'created_at'], unique=False)
+    op.create_index(op.f('ix_wallet_transactions_created_at'), 'wallet_transactions', ['created_at'], unique=False)
+    op.create_index(op.f('ix_wallet_transactions_created_by_user'), 'wallet_transactions', ['created_by_user'], unique=False)
+    op.create_index(op.f('ix_wallet_transactions_is_deleted'), 'wallet_transactions', ['is_deleted'], unique=False)
+    op.create_index(op.f('ix_wallet_transactions_transaction_type'), 'wallet_transactions', ['transaction_type'], unique=False)
+    op.create_index(op.f('ix_wallet_transactions_wallet_id'), 'wallet_transactions', ['wallet_id'], unique=False)
     op.create_table('order_items',
     sa.Column('id', sa.Integer(), nullable=False, comment='Уникальный идентификатор позиции заказа'),
     sa.Column('order_id', sa.Integer(), nullable=False, comment='Ссылка на заказ, к которому относится эта позиция'),
@@ -100,6 +134,14 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_order_items_order_id'), table_name='order_items')
     op.drop_index(op.f('ix_order_items_id'), table_name='order_items')
     op.drop_table('order_items')
+    op.drop_index(op.f('ix_wallet_transactions_wallet_id'), table_name='wallet_transactions')
+    op.drop_index(op.f('ix_wallet_transactions_transaction_type'), table_name='wallet_transactions')
+    op.drop_index(op.f('ix_wallet_transactions_is_deleted'), table_name='wallet_transactions')
+    op.drop_index(op.f('ix_wallet_transactions_created_by_user'), table_name='wallet_transactions')
+    op.drop_index(op.f('ix_wallet_transactions_created_at'), table_name='wallet_transactions')
+    op.drop_index('ix_transactions_type_created', table_name='wallet_transactions')
+    op.drop_index('ix_transactions_created_deleted', table_name='wallet_transactions')
+    op.drop_table('wallet_transactions')
     op.drop_index(op.f('ix_orders_seller_id'), table_name='orders')
     op.drop_index(op.f('ix_orders_order_number'), table_name='orders')
     op.drop_index(op.f('ix_orders_id'), table_name='orders')
@@ -108,6 +150,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_hair_products_length_cm'), table_name='hair_products')
     op.drop_index(op.f('ix_hair_products_id'), table_name='hair_products')
     op.drop_table('hair_products')
+    op.drop_table('wallets')
     op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')

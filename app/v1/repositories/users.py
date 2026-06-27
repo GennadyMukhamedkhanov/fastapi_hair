@@ -1,17 +1,9 @@
-from collections import defaultdict
-from decimal import Decimal, ROUND_HALF_UP
-from uuid import uuid4
-from app.v1.auth import hash_password
-from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
-
-from app.common.models import Order, OrderItem, User
-from app.common.models.hairs import HairProduct
-from app.v1.enums import ProductStatusEnum, OrderStatus
+from decimal import Decimal
+from app.common.models import User, Wallet
+from app.v1.auth import hash_password
 from app.v1.repositories.common import CommonRepository
-from app.v1.schemas.orders import OrderCreateSchema
 
 
 class UserRepository(CommonRepository):
@@ -23,7 +15,7 @@ class UserRepository(CommonRepository):
             email: str,
             name: str
     ) -> int:
-        """Создаёт пользователя, если его ещё нет"""
+        """Создаёт пользователя с кошельком через связь"""
         # Проверяем существование
         stmt = select(self.model).where(self.model.email == email)
         result = await session.execute(stmt)
@@ -32,12 +24,31 @@ class UserRepository(CommonRepository):
         if existing:
             return existing.id
 
-        # Создаём нового
-        password = 'password'  # TODO: изменить, password = 'password' временно
-        user = self.model(email=email,
-                          username=name,
-                          hashed_password=hash_password(password))
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return user.id
+        try:
+            password = 'password'  # TODO: изменить
+            user = self.model(
+                email=email,
+                username=name,
+                hashed_password=hash_password(password)
+            )
+
+            #  Создаем кошелек
+            wallet = Wallet(balance=Decimal("0.00"))
+            user.wallet = wallet  # SQLAlchemy сам подставит user_id
+
+            session.add(user)
+
+            await session.commit()
+            await session.refresh(user)
+
+            return user.id
+
+        except Exception as e:
+            await session.rollback()
+            raise ValueError(f"Ошибка создания пользователя: {str(e)}")
+
+    async def get_list_name_users(self, session: AsyncSession) -> list[User]:
+        stmt = select(self.model)
+        result = await session.execute(stmt)
+        return result.scalars().all()
+

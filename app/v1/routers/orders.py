@@ -11,10 +11,13 @@ from app.common.models import Order
 from app.common.services.security import get_user_data_from_token
 # from app.v1.services.orders import OrderService
 from app.v1.conf.templates import templates
-from app.v1.enums import OrderStatus
-from app.v1.repositories.dependencies import get_order_repository, get_product_repository
+from app.v1.enums import OrderStatus, TransactionType
+from app.v1.repositories.dependencies import get_order_repository, get_product_repository, get_transaction_repository, \
+    get_wallet_repository
 from app.v1.repositories.orders import OrderRepository
 from app.v1.repositories.products import ProductRepository
+from app.v1.repositories.transactions import TransactionRepository
+from app.v1.repositories.wallets import WalletRepository
 from app.v1.schemas.orders import StatusUpdateSchema
 from app.v1.services.orders import get_create_order_page_service, \
     create_order_from_form_service, get_orders_page_service, delete_order_service
@@ -97,18 +100,12 @@ async def create_order_from_form(
     return RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
-# @router.get("/delete/{order_id}")
-# async def delete_order(request: Request,
-#                        order: Order = Depends(delete_order_service)):
-#
-#     redirect_url = request.url_for("get_order_detail_page", order_id=order.id)
-#     return RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
 @router.get("/delete/{order_id}")
 async def delete_order(
-    request: Request,
-    order_id: int,
-    session: AsyncSession = Depends(get_async_db),
-    order_repo: "OrderRepository" = Depends(get_order_repository)
+        request: Request,
+        order_id: int,
+        session: AsyncSession = Depends(get_async_db),
+        order_repo: "OrderRepository" = Depends(get_order_repository)
 ):
     try:
         order = await delete_order_service(order_id, session, order_repo)
@@ -121,6 +118,7 @@ async def delete_order(
         response = RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie(key="delete_error", value=e.detail, max_age=5, path="/")
         return response
+
 
 @router.get("/{order_id}", name="get_order_detail_page")
 async def get_order_detail_page(
@@ -159,7 +157,9 @@ async def update_order_status(
         update_data: StatusUpdateSchema,
         session: AsyncSession = Depends(get_async_db),
         orders_repo: OrderRepository = Depends(get_order_repository),
-        products_repo: ProductRepository = Depends(get_product_repository)
+        products_repo: ProductRepository = Depends(get_product_repository),
+        transactions_repo: TransactionRepository = Depends(get_transaction_repository),
+        wallets_repo: WalletRepository = Depends(get_wallet_repository),
 
 ):
     new_status = update_data.status
@@ -185,17 +185,65 @@ async def update_order_status(
     if order.seller_id != user_id:
         raise HTTPException(status_code=403, detail="Нет прав для изменения статуса")
 
+    # Todo Меняем статус заказа с "В пути" на "Доставлен"
     if new_status == OrderStatus.DELIVERED.value and order.status == OrderStatus.IN_TRANSIT.value:
-        order = await orders_repo.set_sale_prices_on_delivery(
-            session=session,
-            order_id=order_id,
-            sale_prices=sale_prices,
-        )
+        try:
+            order = await orders_repo.set_sale_prices_on_delivery(
+                session=session,
+                order_id=order_id,
+                sale_prices=sale_prices,
+            )
 
+            order_number = order.order_number
+            if not order_number:
+                raise HTTPException(status_code=400, detail="У заказа нет номера")
+
+            if not order.seller or not order.seller.wallet:
+                raise HTTPException(status_code=400, detail="У продавца нет кошелька")
+
+            cost_amount = order.total_price - order.profit
+
+            transaction = await transactions_repo.get_transaction_by_description(
+                session=session,
+                order_number=order_number
+            )
+
+            if not transaction:
+                await transactions_repo.create_transaction(
+                    session=session,
+                    wallet_id=order.seller.wallet.id,
+                    user_id=order.seller_id,
+                    transaction_type=TransactionType.SALE.value.upper(),
+                    sale_amount=order.total_price,
+                    cost_amount=cost_amount,
+                    profit_amount=order.profit,
+                    amount=order.total_price,
+                    description=order_number
+                )
+
+                wallet = await wallets_repo.get_wallet_by_user_id(
+                    session=session,
+                    user_id=order.seller_id,
+                )
+                if not wallet:
+                    raise HTTPException(status_code=404, detail="Кошелек не найден")
+                wallet.add_balance(order.total_price)
+
+            await session.commit()
+
+        except HTTPException:
+            await session.rollback()
+            raise
+        except Exception as e:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
+
+    # Todo Меняем статус заказа с "В пути" на "Возвращается" - при отказе товара покупателем
     if new_status == OrderStatus.RETURN_TRANSIT.value and order.status == OrderStatus.IN_TRANSIT.value:
         order.status = OrderStatus.RETURN_TRANSIT.value
         await session.commit()
 
+    # Todo Меняем статус с "Возвращается" или "В пути" на "Возвращен на склад"
     if new_status == OrderStatus.RETURNED_ON_WAREHOUSE.value and (
             order.status == OrderStatus.RETURN_TRANSIT.value or
             order.status == OrderStatus.IN_TRANSIT.value
@@ -203,7 +251,6 @@ async def update_order_status(
 
         try:
             # Восстанавливаем остатки товаров
-
             for item in order.items_rel:
                 product = await products_repo.get_product(session, item.product_id)
 
@@ -242,19 +289,74 @@ async def update_order_status(
                 "message": f"Заказ #{order.order_number} возвращен на склад, финансы обнулены"
             }
 
+        except Exception as e:
+            await session.rollback()
+            print(f"Ошибка при возврате заказа: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Ошибка при возврате заказа: {str(e)}"
+            )
+    # Todo Меняем статус с "Доставлен" на "Возвращен на склад" - при отказе товара покупателем после покупки
+    if new_status == OrderStatus.RETURNED_ON_WAREHOUSE and order.status == OrderStatus.DELIVERED.value:
+        try:
+            # Восстанавливаем остатки товаров
+            for item in order.items_rel:
+                product = await products_repo.get_product(session, item.product_id)
+
+                product.stock_grams += item.grams
+                session.add(product)  # Явно добавляем в сессию
+
+                item.purchase_price_per_100g = Decimal("0.00")
+                item.sale_price_per_100g = Decimal("0.00")
+                item.total_sale_price = Decimal("0.00")
+                item.profit = Decimal("0.00")
+                session.add(item)
+
+            # Вычетаем стоимость возврата из кошелька продавца
+            wallet = await wallets_repo.get_wallet_by_user_id(session, user_id)
+            if wallet is None:
+                raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+            await transactions_repo.create_return_transaction_repository(
+                session=session,
+                amount=order.total_price,
+                description=order.order_number,
+                user_id=user_id,
+                wallet_id=wallet.id,
+            )
+
+            # Обнуляем финансовые показатели
+            order.total_price = Decimal("0.00")
+            order.final_price = Decimal("0.00")
+            order.profit = Decimal("0.00")
+
+            # Обновляем статус заказа
+            order.status = OrderStatus.RETURNED_ON_WAREHOUSE.value
+
+            # Явно добавляем заказ в сессию
+            session.add(order)
+
+            # Принудительно сбрасываем все изменения
+            await session.flush()
+            await session.commit()
+
+            return {
+                "success": True,
+                "status": new_status,
+                "order_id": order.id,
+                "order_number": order.order_number,
+                "total_price": str(order.total_price),
+                "final_price": str(order.final_price),
+                "profit": str(order.profit),
+                "message": f"Заказ #{order.order_number} возвращен на склад, финансы обнулены"
+            }
 
         except Exception as e:
-
             await session.rollback()
-
             print(f"Ошибка при возврате заказа: {e}")
-
             raise HTTPException(
-
                 status_code=500,
-
                 detail=f"Ошибка при возврате заказа: {str(e)}"
-
             )
 
     return {

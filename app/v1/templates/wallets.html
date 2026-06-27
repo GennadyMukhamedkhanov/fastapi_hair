@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кошельки пользователей — CRM Hair</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/v1/static/css/wallets.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Кнопка История операций (по центру вверху) -->
+        <div class="transactions-nav">
+            <a href="/v1/transactions" class="transactions-btn">
+                <i class="fas fa-clock-rotate-left"></i>
+                История операций
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <!-- Заголовок страницы -->
+        <div class="page-header">
+            <div class="header-left">
+                <a href="/v1/index/" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1>💰 Кошельки пользователей</h1>
+            </div>
+            <div class="header-right">
+                <span class="total-badge">
+                    <i class="fas fa-coins"></i>
+                    Общий баланс: <strong>{{ "{:,.2f}".format(total_result_all_wallets|float).replace(',', ' ') }} ₽</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- Карточка общего баланса -->
+        <div class="total-card">
+            <div class="total-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="total-info">
+                <span class="total-label">Общий баланс всех кошельков</span>
+                <span class="total-amount">{{ "{:,.2f}".format(total_result_all_wallets|float).replace(',', ' ') }} ₽</span>
+                <span class="total-count">{{ wallets_list_users|length }} кошельков</span>
+            </div>
+        </div>
+
+        <!-- Сетка кошельков (карточки) -->
+        <div class="wallets-grid">
+            {% if wallets_list_users %}
+                {% for wallet in wallets_list_users %}
+                <div class="wallet-card fade-in" data-user-id="{{ wallet.user_id }}" onclick="openWallet({{ wallet.user_id }})">
+                    <div class="wallet-card-header">
+                        <div class="wallet-user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="wallet-user-info">
+                            <span class="wallet-username">{{ wallet.user.username if wallet.user else 'Неизвестно' }}</span>
+                            <span class="wallet-email">{{ wallet.user.email if wallet.user else '—' }}</span>
+                        </div>
+                        <div class="wallet-id">#{{ wallet.id }}</div>
+                    </div>
+                    <div class="wallet-card-body">
+                        <div class="wallet-balance-wrapper">
+                            <span class="wallet-balance-label">Баланс</span>
+                            <span class="wallet-balance {% if wallet.balance > 0 %}positive{% elif wallet.balance < 0 %}negative{% else %}zero{% endif %}">
+                                {{ "{:,.2f}".format(wallet.balance|float).replace(',', ' ') }} ₽
+                            </span>
+                        </div>
+                    </div>
+                    <div class="wallet-card-footer">
+                        <span class="wallet-updated">
+                            <i class="far fa-clock"></i>
+                            {{ wallet.updated_at.strftime('%d.%m.%Y %H:%M') if wallet.updated_at else '—' }}
+                        </span>
+                        <span class="wallet-click-hint">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <span>Кошельки не найдены</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <i class="fas fa-code"></i>
+            <span>CRM Hair — Управление кошельками</span>
+        </div>
+    </div>
+
+    <script>
+        // Функция открытия страницы кошелька
+        function openWallet(userId) {
+            if (userId) {
+                // Перенаправляем на страницу деталей кошелька
+                window.location.href = `/v1/wallets/${userId}`;
+            }
+        }
+
+        // Добавляем анимацию для карточек
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.wallet-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.08}s`;
+            });
+
+            // Добавляем эффект наведения с курсором pointer
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+            });
+        });
+
+        // Обработчик нажатия Enter/Space для доступности
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.wallet-card');
+                if (card) {
+                    e.preventDefault();
+                    const userId = card.getAttribute('data-user-id');
+                    if (userId) {
+                        openWallet(parseInt(userId));
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

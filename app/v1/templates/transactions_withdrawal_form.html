@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — CRM Hair</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/v1/static/css/transactions_withdrawal_form.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация назад -->
+        <div class="nav-header">
+            <a href="/v1/transactions/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Назад к транзакциям
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-arrow-down"></i>
+                {{ title }}
+            </h1>
+            <div class="spacer"></div>
+        </div>
+
+        <!-- Основная карточка -->
+        <div class="withdrawal-card">
+            <!-- Баланс кошелька -->
+            <div class="balance-section">
+                <div class="balance-label">
+                    <i class="fas fa-wallet"></i>
+                    Текущий баланс
+                </div>
+                <div class="balance-amount">
+                    {{ "{:,.2f}".format(balance_user|float).replace(',', ' ') }} ₽
+                </div>
+                <div class="balance-hint">
+                    <i class="fas fa-info-circle"></i>
+                    После вывода средств баланс будет уменьшен на сумму
+                </div>
+            </div>
+
+            <!-- Форма вывода средств -->
+            <form id="withdrawal-form" class="withdrawal-form" action="/v1/transactions/withdrawal/create" method="post" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label for="amount" class="form-label required">
+                        <i class="fas fa-ruble-sign"></i>
+                        Сумма вывода
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="number"
+                            id="amount"
+                            name="amount"
+                            class="form-input"
+                            placeholder="Введите сумму вывода"
+                            min="0.01"
+                            step="0.01"
+                            required
+                            autofocus
+                        >
+                        <span class="input-currency">₽</span>
+                    </div>
+                    <div class="form-hint">
+                        <i class="fas fa-lightbulb"></i>
+                        Укажите сумму, которую хотите вывести
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label required">
+                        <i class="fas fa-pencil-alt"></i>
+                        Назначение вывода
+                    </label>
+                    <div class="input-wrapper">
+                        <textarea
+                            id="description"
+                            name="description"
+                            class="form-textarea"
+                            placeholder="Введите назначение вывода (зарплата, личные нужды и т.д.)"
+                            rows="4"
+                            required
+                        ></textarea>
+                    </div>
+                    <div class="form-hint">
+                        <i class="fas fa-lightbulb"></i>
+                        Укажите цель вывода средств для учета
+                    </div>
+                </div>
+
+                <!-- Дополнительная информация -->
+                <div class="form-group">
+                    <label for="recipient" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Получатель (опционально)
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="recipient"
+                            name="recipient"
+                            class="form-input"
+                            placeholder="Например: Имя получателя или назначение платежа"
+                        >
+                    </div>
+                </div>
+
+                <!-- Кнопка создания -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                        <i class="fas fa-times"></i>
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <i class="fas fa-arrow-down"></i>
+                        Вывести средства
+                    </button>
+                </div>
+            </form>
+
+            <!-- Предупреждение -->
+            <div class="warning-section">
+                <div class="warning-icon">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div class="warning-text">
+                    <strong>Внимание!</strong>
+                    Средства будут списаны с баланса после создания операции вывода.
+                    Убедитесь, что на балансе достаточно средств.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <i class="fas fa-code"></i>
+            <span>CRM Hair — Вывод средств</span>
+        </div>
+    </div>
+
+    <script>
+        function handleSubmit(event) {
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value.trim();
+
+            // Валидация суммы
+            if (!amount || parseFloat(amount) <= 0) {
+                event.preventDefault();
+                showNotification('Ошибка', 'Пожалуйста, укажите корректную сумму вывода', 'error');
+                document.getElementById('amount').focus();
+                return false;
+            }
+
+            // Валидация описания
+            if (!description) {
+                event.preventDefault();
+                showNotification('Ошибка', 'Пожалуйста, укажите назначение вывода', 'error');
+                document.getElementById('description').focus();
+                return false;
+            }
+
+            // Проверка баланса
+            const currentBalance = parseFloat({{ balance_user|float }});
+            if (parseFloat(amount) > currentBalance) {
+                event.preventDefault();
+                showNotification('Ошибка', 'Недостаточно средств на балансе!', 'error');
+                return false;
+            }
+
+            // Показываем уведомление об отправке
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            submitBtn.disabled = true;
+
+            return true;
+        }
+
+        // Функция для отображения уведомлений
+        function showNotification(title, message, type = 'info') {
+            // Удаляем старое уведомление если есть
+            const oldNotification = document.querySelector('.custom-notification');
+            if (oldNotification) {
+                oldNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `custom-notification notification-${type}`;
+
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                info: 'fa-info-circle'
+            };
+
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas ${iconMap[type] || iconMap.info}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message.replace(/\n/g, '<br>')}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Автоматическое закрытие через 5 секунд
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Закрытие уведомления по клику вне его
+        document.addEventListener('click', function(e) {
+            const notification = document.querySelector('.custom-notification');
+            if (notification && !notification.contains(e.target)) {
+                notification.remove();
+            }
+        });
+
+        // Автофокус на поле суммы
+        document.addEventListener('DOMContentLoaded', function() {
+            const amountInput = document.getElementById('amount');
+            if (amountInput) {
+                setTimeout(() => amountInput.focus(), 100);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+# app/common/config.py
 from __future__ import annotations
 from typing import Set
 import os
@@ -7,8 +8,8 @@ from dataclasses import dataclass, field
 
 # ✅ Явно указываем путь к .env
 BASE_DIR = Path(__file__).resolve().parent.parent
-env_path = BASE_DIR / ".env.prod"
-#env_path = BASE_DIR / ".env"
+#env_path = BASE_DIR / ".env.prod"  # Раскомментировать для продакшена
+env_path = BASE_DIR / ".env"  # Использовать для разработки
 
 if env_path.exists():
     load_dotenv(env_path)
@@ -54,7 +55,7 @@ class Settings:
     redis_host: str = os.getenv("REDIS_HOST", "localhost")
     redis_port: int = int(os.getenv("REDIS_PORT", "6379"))
     redis_db: int = int(os.getenv("REDIS_DB", "0"))
-    redis_password: str|None = os.getenv("REDIS_PASSWORD", None)
+    redis_password: str | None = os.getenv("REDIS_PASSWORD", None)
 
     class Config:
         env_file = ".env.prod"

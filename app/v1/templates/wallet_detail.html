@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Баланс счета</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/wallet_detail.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="wallet-card">
+        <!-- Шапка с именем пользователя справа и кнопками навигации -->
+        <div class="wallet-header">
+            <div class="header-left">
+                <h1 class="wallet-title">
+                    <i class="fas fa-wallet"></i>
+                    Баланс счета
+                </h1>
+                <div class="nav-buttons">
+                    <a href="/v1/wallets/" class="nav-btn btn-wallets">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="nav-text">Кошельки</span>
+                        <span class="nav-tooltip">Вернуться к списку кошельков</span>
+                    </a>
+                    <a href="/v1/index" class="nav-btn btn-home">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-text">Главная</span>
+                        <span class="nav-tooltip">На главную страницу</span>
+                    </a>
+                </div>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle"></i>
+                <span class="user-name">{{ name }}</span>
+            </div>
+        </div>
+
+        <!-- Баланс и кнопки -->
+        <div class="wallet-content">
+            <!-- Верхний ряд кнопок  -->
+            <div class="actions-row top-row">
+                <div class="actions-group left-group">
+                    <button class="action-btn btn-expenses" onclick="window.location.href='/v1/transactions/transfer/form'">
+                        <span class="btn-icon"><i class="fas fa-arrow-right-arrow-left"></i></span>
+                        <span class="btn-title">Расходы</span>
+                        <span class="btn-sub">Списание средств на расходы (пакеты, резинки, переводы, оплата объявлений и т.д)</span>
+                    </button>
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/purchases/form'">
+                        <span class="btn-icon"><i class="fas fa-boxes-stacked"></i></span>
+                        <span class="btn-title">Новая закупка</span>
+                        <span class="btn-sub">Закупка волос для продажи</span>
+                    </button>
+                </div>
+                <div class="actions-group right-group">
+                    <!-- Здесь больше нет кнопок -->
+                </div>
+            </div>
+
+            <!-- Баланс по центру с форматированием -->
+            <div class="balance-block">
+                <div class="balance-amount">{{ "{:,.2f}".format(wallet_user.balance|float).replace(',', ' ') }} ₽</div>
+            </div>
+
+            <!-- Нижний ряд кнопок -->
+            <div class="actions-row bottom-row">
+                <div class="actions-group left-group">
+
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/deposit/form'">
+                        <span class="btn-icon"><i class="fas fa-plus-circle"></i></span>
+                        <span class="btn-title">Пополнение</span>
+                        <span class="btn-sub">Приход средств от других пользователей или какие-либо другие источники пополнения</span>
+                    </button>
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/withdrawal/form'">
+                        <span class="btn-icon"><i class="fas fa-minus-circle"></i></span>
+                        <span class="btn-title">Вывод/Зарплата</span>
+                        <span class="btn-sub">Вывод средств (зарплата)</span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wallet-footer">
+        <p class="footer-text">© 2026 Финансовый сервис. Все права защищены.</p>
+    </div>
+</div>
+</body>
+</html>

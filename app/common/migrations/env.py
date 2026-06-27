@@ -14,6 +14,8 @@ load_dotenv(dotenv_path=env_path)
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
+from app.common.models import *
+
 config = context.config
 
 # ✅ Безопасно получаем URL из переменной окружения
