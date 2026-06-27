@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 
 # ✅ Явно указываем путь к .env
 BASE_DIR = Path(__file__).resolve().parent.parent
-#env_path = BASE_DIR / ".env.prod"  # Раскомментировать для продакшена
-env_path = BASE_DIR / ".env"  # Использовать для разработки
+env_path = BASE_DIR / ".env.prod"  # Раскомментировать для продакшена
+#env_path = BASE_DIR / ".env"  # Использовать для разработки
 
 if env_path.exists():
     load_dotenv(env_path)
