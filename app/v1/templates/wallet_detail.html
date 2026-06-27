@@ -44,7 +44,12 @@
                     <button class="action-btn btn-expenses" onclick="window.location.href='/v1/transactions/transfer/form'">
                         <span class="btn-icon"><i class="fas fa-arrow-right-arrow-left"></i></span>
                         <span class="btn-title">Расходы</span>
-                        <span class="btn-sub">Списание средств на расходы (пакеты, резинки, переводы)</span>
+                        <span class="btn-sub">Списание средств на расходы (пакеты, резинки, переводы, оплата объявлений и т.д)</span>
+                    </button>
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/purchases/form'">
+                        <span class="btn-icon"><i class="fas fa-boxes-stacked"></i></span>
+                        <span class="btn-title">Новая закупка</span>
+                        <span class="btn-sub">Закупка волос для продажи</span>
                     </button>
                 </div>
                 <div class="actions-group right-group">
@@ -52,29 +57,26 @@
                 </div>
             </div>
 
-            <!-- Баланс по центру -->
+            <!-- Баланс по центру с форматированием -->
             <div class="balance-block">
-                <div class="balance-amount">{{ "%.2f"|format(wallet_user.balance or 0) }} ₽</div>
+                <div class="balance-amount">{{ "{:,.2f}".format(wallet_user.balance|float).replace(',', ' ') }} ₽</div>
             </div>
 
             <!-- Нижний ряд кнопок -->
             <div class="actions-row bottom-row">
                 <div class="actions-group left-group">
-                    <button class="action-btn btn-replenish" onclick="alert('Заглушка: Пополнение')">
+
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/deposit/form'">
                         <span class="btn-icon"><i class="fas fa-plus-circle"></i></span>
                         <span class="btn-title">Пополнение</span>
-                        <span class="btn-sub">Приход средств от других пользователей или источников</span>
+                        <span class="btn-sub">Приход средств от других пользователей или какие-либо другие источники пополнения</span>
                     </button>
-                    <button class="action-btn btn-withdraw" onclick="alert('Заглушка: Вывод')">
+                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/withdrawal/form'">
                         <span class="btn-icon"><i class="fas fa-minus-circle"></i></span>
-                        <span class="btn-title">Вывод</span>
-                        <span class="btn-sub">Вывод средств (зарплата, личные нужды)</span>
+                        <span class="btn-title">Вывод/Зарплата</span>
+                        <span class="btn-sub">Вывод средств (зарплата)</span>
                     </button>
-                    <button class="action-btn btn-purchase" onclick="window.location.href='/v1/transactions/purchases/form'">
-                        <span class="btn-icon"><i class="fas fa-boxes-stacked"></i></span>
-                        <span class="btn-title">Новая закупка</span>
-                        <span class="btn-sub">Закупка волос для работы</span>
-                    </button>
+
                 </div>
             </div>
         </div>

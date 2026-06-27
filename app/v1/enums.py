@@ -23,9 +23,11 @@ class TransactionType(Enum):
     """
     Типы транзакций кошелька
     """
-    SALE = "sale"  # - продажа - при продаже товара +
-    RETURN = "return"  # "return" - возврат - в случае возврата товара после продажи +
+    SALE = "sale"  # - продажа - при продаже товара
+    DEPOSIT = "deposit"  # "deposit" - пополнение (приход) - в случае пополнения кошелька
+    WITHDRAWAL = "withdrawal"  # "withdrawal" - вывод - в случае вывода средств
+    RETURN = "return"  # "return" - возврат - в случае возврата товара после продажи
     PURCHASE = "purchase"  # "purchase" - вывод в случае новой закупки волос (Новая закупка)
-    TRANSFER = "transfer"  # "transfer" - вывод - в случае каких-либо расходов (пакеты, резинки и т.д.) +
-    DEPOSIT = "deposit"  # "deposit" - пополнение (приход) - в случае пополнения кошелька +
-    WITHDRAWAL = "withdrawal"  # "withdrawal" - вывод (расход) - в случае вывода средств +
+    TRANSFER = "transfer"  # "transfer" - расход - в случае каких-либо расходов (пакеты, резинки и т.д.)
+
+

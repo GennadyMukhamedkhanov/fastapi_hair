@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="/v1/static/css/transactions_purchase_create_form.css">
+    <link rel="stylesheet" href="/v1/static/css/transactions_deposit_form.css">
 </head>
 <body>
     <div class="container">
@@ -22,14 +22,14 @@
                 Назад к транзакциям
             </a>
             <h1 class="page-title">
-                <i class="fas fa-boxes-stacked"></i>
+                <i class="fas fa-arrow-up"></i>
                 {{ title }}
             </h1>
             <div class="spacer"></div>
         </div>
 
         <!-- Основная карточка -->
-        <div class="purchase-card">
+        <div class="deposit-card">
             <!-- Баланс кошелька -->
             <div class="balance-section">
                 <div class="balance-label">
@@ -41,16 +41,16 @@
                 </div>
                 <div class="balance-hint">
                     <i class="fas fa-info-circle"></i>
-                    После создания заказа баланс будет уменьшен на сумму закупки
+                    После пополнения баланс будет увеличен на сумму
                 </div>
             </div>
 
-            <!-- Форма создания закупки -->
-            <form id="purchase-form" class="purchase-form" action="/v1/transactions/purchases/create" method="post" onsubmit="handleSubmit(event)">
+            <!-- Форма пополнения -->
+            <form id="deposit-form" class="deposit-form" action="/v1/transactions/deposit/create" method="post" onsubmit="handleSubmit(event)">
                 <div class="form-group">
                     <label for="amount" class="form-label required">
                         <i class="fas fa-ruble-sign"></i>
-                        Сумма закупки
+                        Сумма пополнения
                     </label>
                     <div class="input-wrapper">
                         <input
@@ -58,7 +58,7 @@
                             id="amount"
                             name="amount"
                             class="form-input"
-                            placeholder="Введите сумму закупки"
+                            placeholder="Введите сумму пополнения"
                             min="0.01"
                             step="0.01"
                             required
@@ -68,43 +68,44 @@
                     </div>
                     <div class="form-hint">
                         <i class="fas fa-lightbulb"></i>
-                        Укажите общую стоимость закупки волос
+                        Укажите сумму зачисления средств на баланс
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="description" class="form-label">
+                    <label for="description" class="form-label required">
                         <i class="fas fa-pencil-alt"></i>
-                        Описание закупки
+                        Описание пополнения
                     </label>
                     <div class="input-wrapper">
                         <textarea
                             id="description"
                             name="description"
                             class="form-textarea"
-                            placeholder="Введите описание закупки (поставщик, качество, цвет, длина и т.д.)"
+                            placeholder="Введите описание пополнения (источник поступления средств)"
                             rows="4"
+                            required
                         ></textarea>
                     </div>
                     <div class="form-hint">
                         <i class="fas fa-lightbulb"></i>
-                        Укажите детали закупки для последующего учета
+                        Укажите источник пополнения для учета
                     </div>
                 </div>
 
                 <!-- Дополнительная информация -->
                 <div class="form-group">
-                    <label for="supplier" class="form-label">
-                        <i class="fas fa-truck"></i>
-                        Поставщик (опционально)
+                    <label for="source" class="form-label">
+                        <i class="fas fa-tags"></i>
+                        Источник пополнения (опционально)
                     </label>
                     <div class="input-wrapper">
                         <input
                             type="text"
-                            id="supplier"
-                            name="supplier"
+                            id="source"
+                            name="source"
                             class="form-input"
-                            placeholder="Название поставщика"
+                            placeholder="Например: Оплата клиента, Возврат, Бонус и т.д."
                         >
                     </div>
                 </div>
@@ -117,20 +118,20 @@
                     </button>
                     <button type="submit" class="btn btn-primary" id="submit-btn">
                         <i class="fas fa-plus-circle"></i>
-                        Создать заказ
+                        Пополнить баланс
                     </button>
                 </div>
             </form>
 
             <!-- Предупреждение -->
-            <div class="warning-section">
-                <div class="warning-icon">
-                    <i class="fas fa-triangle-exclamation"></i>
+            <div class="success-section">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="warning-text">
-                    <strong>Внимание!</strong>
-                    Средства будут списаны с баланса после создания заказа.
-                    Убедитесь, что на балансе достаточно средств.
+                <div class="success-text">
+                    <strong>Информация!</strong>
+                    Средства будут зачислены на баланс после создания пополнения.
+                    Транзакция будет отображена в истории операций.
                 </div>
             </div>
         </div>
@@ -138,27 +139,28 @@
         <!-- Footer -->
         <div class="footer">
             <i class="fas fa-code"></i>
-            <span>CRM Hair — Оформление закупки</span>
+            <span>CRM Hair — Пополнение баланса</span>
         </div>
     </div>
 
     <script>
         function handleSubmit(event) {
             const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value.trim();
 
             // Валидация суммы
             if (!amount || parseFloat(amount) <= 0) {
                 event.preventDefault();
-                showNotification('Ошибка', 'Пожалуйста, укажите корректную сумму закупки', 'error');
+                showNotification('Ошибка', 'Пожалуйста, укажите корректную сумму пополнения', 'error');
                 document.getElementById('amount').focus();
                 return false;
             }
 
-            // Проверка баланса (передаем из шаблона)
-            const currentBalance = parseFloat({{ balance_user|float }});
-            if (parseFloat(amount) > currentBalance) {
+            // Валидация описания
+            if (!description) {
                 event.preventDefault();
-                showNotification('Ошибка', 'Недостаточно средств на балансе!', 'error');
+                showNotification('Ошибка', 'Пожалуйста, укажите описание пополнения', 'error');
+                document.getElementById('description').focus();
                 return false;
             }
 
@@ -169,7 +171,6 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
             submitBtn.disabled = true;
 
-            // Разрешаем отправку формы
             return true;
         }
 

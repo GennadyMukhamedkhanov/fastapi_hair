@@ -37,7 +37,7 @@
                     Текущий баланс
                 </div>
                 <div class="balance-amount">
-                    {{ "%.2f"|format(balance_user|float) }} ₽
+                    {{ "{:,.2f}".format(balance_user|float).replace(',', ' ') }} ₽
                 </div>
                 <div class="balance-hint">
                     <i class="fas fa-info-circle"></i>

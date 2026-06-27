@@ -68,7 +68,8 @@
                 <i class="fas fa-wallet"></i>
             </div>
             <h3>Кошелек</h3>
-            <p>Баланс: <span class="wallet-balance">0 ₽</span></p>
+            <p>Баланс: <span
+                    class="wallet-balance">{{ "{:,.0f}".format(balance_wallets|float).replace(',', ' ') }} ₽</span></p>
         </div>
 
         <!-- Статистика -->
@@ -116,6 +117,7 @@
                 showDemoMessage('демонстрация интерфейса');
             }, 500);
         });
+
 
 </script>
 </body>

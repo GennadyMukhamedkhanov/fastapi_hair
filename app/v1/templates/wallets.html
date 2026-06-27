@@ -35,7 +35,7 @@
             <div class="header-right">
                 <span class="total-badge">
                     <i class="fas fa-coins"></i>
-                    Общий баланс: <strong>{{ "%.2f"|format(total_result_all_wallets) }} ₽</strong>
+                    Общий баланс: <strong>{{ "{:,.2f}".format(total_result_all_wallets|float).replace(',', ' ') }} ₽</strong>
                 </span>
             </div>
         </div>
@@ -47,7 +47,7 @@
             </div>
             <div class="total-info">
                 <span class="total-label">Общий баланс всех кошельков</span>
-                <span class="total-amount">{{ "%.2f"|format(total_result_all_wallets) }} ₽</span>
+                <span class="total-amount">{{ "{:,.2f}".format(total_result_all_wallets|float).replace(',', ' ') }} ₽</span>
                 <span class="total-count">{{ wallets_list_users|length }} кошельков</span>
             </div>
         </div>
@@ -71,7 +71,7 @@
                         <div class="wallet-balance-wrapper">
                             <span class="wallet-balance-label">Баланс</span>
                             <span class="wallet-balance {% if wallet.balance > 0 %}positive{% elif wallet.balance < 0 %}negative{% else %}zero{% endif %}">
-                                {{ "%.2f"|format(wallet.balance) }} ₽
+                                {{ "{:,.2f}".format(wallet.balance|float).replace(',', ' ') }} ₽
                             </span>
                         </div>
                     </div>

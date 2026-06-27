@@ -170,7 +170,7 @@
                             <td class="col-sale">
                                 {% if transaction.sale_amount is not none %}
                                     <span class="amount-value neutral">
-                                        {{ "%.2f"|format(transaction.sale_amount|float) }} ₽
+                                        {{ "{:,.2f}".format(transaction.sale_amount|float).replace(',', ' ') }} ₽
                                     </span>
                                 {% else %}
                                     <span class="amount-value neutral">—</span>
@@ -179,7 +179,7 @@
                             <td class="col-cost">
                                 {% if transaction.cost_amount is not none %}
                                     <span class="amount-value neutral">
-                                        {{ "%.2f"|format(transaction.cost_amount|float) }} ₽
+                                        {{ "{:,.2f}".format(transaction.cost_amount|float).replace(',', ' ') }} ₽
                                     </span>
                                 {% else %}
                                     <span class="amount-value neutral">—</span>
@@ -188,7 +188,7 @@
                             <td class="col-profit">
                                 {% if transaction.profit_amount is not none %}
                                     <span class="profit-value {% if transaction.profit_amount|float > 0 %}positive{% elif transaction.profit_amount|float < 0 %}negative{% else %}neutral{% endif %}">
-                                        {{ "%.2f"|format(transaction.profit_amount|float) }} ₽
+                                        {{ "{:,.2f}".format(transaction.profit_amount|float).replace(',', ' ') }} ₽
                                     </span>
                                 {% else %}
                                     <span class="profit-value neutral">—</span>
@@ -198,7 +198,7 @@
                                 {% if transaction.amount is not none %}
                                     <span class="amount-value {% if transaction.transaction_type in ['sale', 'deposit', 'return'] %}positive{% elif transaction.transaction_type in ['withdrawal', 'purchase', 'transfer'] %}negative{% else %}neutral{% endif %}">
                                         {% if transaction.transaction_type in ['withdrawal', 'purchase', 'transfer'] %}-{% endif %}
-                                        {{ "%.2f"|format(transaction.amount|float) }} ₽
+                                        {{ "{:,.2f}".format(transaction.amount|float).replace(',', ' ') }} ₽
                                     </span>
                                 {% else %}
                                     <span class="amount-value neutral">—</span>

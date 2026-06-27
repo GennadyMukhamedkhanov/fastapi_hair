@@ -41,7 +41,7 @@ class TransactionRepository(CommonRepository):
             description: str
 
     ) -> None:
-        transaction = WalletTransaction(
+        transaction = self.model(
             wallet_id=wallet_id,
             user_id=user_id,
             transaction_type=transaction_type,
@@ -88,7 +88,7 @@ class TransactionRepository(CommonRepository):
 
             wallet.subtract_balance(amount)
 
-            transaction = WalletTransaction(
+            transaction = self.model(
                 wallet_id=wallet_id,
                 user_id=user_id,
                 transaction_type=TransactionType.PURCHASE.value,
@@ -129,10 +129,74 @@ class TransactionRepository(CommonRepository):
 
         wallet.subtract_balance(amount)
 
-        transaction = WalletTransaction(
+        transaction = self.model(
             wallet_id=wallet_id,
             user_id=user_id,
             transaction_type=TransactionType.TRANSFER.value,
+            amount=amount,
+            description=description,
+        )
+        session.add(transaction)
+
+        return True
+
+    async def create_deposit_transaction_repository(
+            self,
+            session: AsyncSession,
+            amount: Decimal,
+            description: str,
+            user_id: int,
+            wallet_id: int,
+    ) -> bool:
+
+        stmt = select(Wallet).where(
+            Wallet.id == wallet_id,
+            Wallet.user_id == user_id
+        )
+        result = await session.execute(stmt)
+        wallet = result.scalar_one_or_none()
+
+        if wallet is None:
+            raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+        wallet.add_balance(amount)
+
+        transaction = self.model(
+            wallet_id=wallet_id,
+            user_id=user_id,
+            transaction_type=TransactionType.DEPOSIT.value,
+            amount=amount,
+            description=description,
+        )
+        session.add(transaction)
+
+        return True
+
+    async def create_withdrawal_transaction_repository(
+            self,
+            session: AsyncSession,
+            amount: Decimal,
+            description: str,
+            user_id: int,
+            wallet_id: int,
+    ) -> bool:
+
+        stmt = select(Wallet).where(
+            Wallet.id == wallet_id,
+            Wallet.user_id == user_id
+        )
+        result = await session.execute(stmt)
+        wallet = result.scalar_one_or_none()
+
+        if wallet is None:
+            raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+        wallet.subtract_balance(amount)
+
+        transaction = self.model(
+            wallet_id=wallet_id,
+            user_id=user_id,
+            transaction_type=TransactionType.WITHDRAWAL.value,
             amount=amount,
             description=description,
         )
