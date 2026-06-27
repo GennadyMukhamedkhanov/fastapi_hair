@@ -203,3 +203,35 @@ class TransactionRepository(CommonRepository):
         session.add(transaction)
 
         return True
+
+    async def create_return_transaction_repository(
+            self,
+            session: AsyncSession,
+            amount: Decimal,
+            description: str,
+            user_id: int,
+            wallet_id: int,
+    ) -> bool:
+
+        stmt = select(Wallet).where(
+            Wallet.id == wallet_id,
+            Wallet.user_id == user_id
+        )
+        result = await session.execute(stmt)
+        wallet = result.scalar_one_or_none()
+
+        if wallet is None:
+            raise HTTPException(status_code=404, detail="Кошелек не найден")
+
+        wallet.subtract_balance(amount)
+
+        transaction = self.model(
+            wallet_id=wallet_id,
+            user_id=user_id,
+            transaction_type=TransactionType.RETURN.value,
+            amount=amount,
+            description=description,
+        )
+        session.add(transaction)
+
+        return True
