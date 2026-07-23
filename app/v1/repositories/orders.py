@@ -55,7 +55,8 @@ class OrderRepository(CommonRepository):
             session: AsyncSession,
             order_data: OrderCreateSchema,
             user_name: str,
-            delivery_service: str
+            delivery_service: str,
+
     ) -> Order:
         if not order_data.items:
             raise HTTPException(
@@ -128,13 +129,14 @@ class OrderRepository(CommonRepository):
         # total_price / final_price / profit пока не заполняются,
         # или можно оставить как Decimal("0.00"), если хочешь избежать null
         order = Order(
-            order_number=self._generate_order_number(user_name, delivery_service),
+            order_number=self._generate_order_number(user_name, delivery_service, order_data.order_number),
             status=OrderStatus.IN_TRANSIT.value,
-            total_price=Decimal("0.00"),  # либо None, если поле nullable
-            final_price=Decimal("0.00"),  # либо None
-            profit=Decimal("0.00"),  # либо None
+            total_price=Decimal("0.00"),
+            final_price=Decimal("0.00"),
+            profit=Decimal("0.00"),
             seller_id=order_data.seller_id,
             items_rel=order_items,
+            description=order_data.customer_data
         )
 
         session.add(order)
@@ -301,5 +303,5 @@ class OrderRepository(CommonRepository):
 
 
     @staticmethod
-    def _generate_order_number(user_name, delivery_service) -> str:
-        return f"{user_name}-{delivery_service}-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+    def _generate_order_number(user_name, delivery_service, order_number) -> str:
+        return f"{user_name}-{delivery_service}-№{order_number}- от {datetime.now().strftime('%d-%m-%Y')}"

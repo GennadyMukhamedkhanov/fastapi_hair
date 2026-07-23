@@ -498,3 +498,143 @@ body {
 .table-wrapper::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+
+/* ===== Блок дополнительной информации ===== */
+.info-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    margin: 20px 30px 10px;
+    padding: 24px;
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-section:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.field-icon {
+    font-size: 18px;
+}
+
+.required-star {
+    color: #dc3545;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.field-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: white;
+    color: #333;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.field-input:hover {
+    border-color: #667eea;
+}
+
+.field-input::placeholder {
+    color: #aaa;
+}
+
+.field-hint {
+    font-size: 12px;
+    color: #6c757d;
+    padding-left: 4px;
+}
+
+.field-error {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #dc3545;
+    padding: 4px 8px;
+    background: #fff5f5;
+    border-radius: 6px;
+    border-left: 3px solid #dc3545;
+}
+
+/* Адаптивность для info-section */
+@media (max-width: 768px) {
+    .info-section {
+        margin: 15px 20px 10px;
+        padding: 18px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .field-label {
+        font-size: 14px;
+    }
+
+    .field-input {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .field-hint {
+        font-size: 11px;
+    }
+
+    .field-error {
+        font-size: 12px;
+    }
+}
+
+/* Адаптивность для очень маленьких экранов */
+@media (max-width: 480px) {
+    .info-section {
+        margin: 10px 12px 8px;
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .info-grid {
+        gap: 12px;
+    }
+
+    .field-input {
+        padding: 8px 12px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+}

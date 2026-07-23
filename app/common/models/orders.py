@@ -21,6 +21,7 @@ class OrderItem(Base):
     total_sale_price: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="итоговая сумма продажи именно по этой позиции: grams × sale_price_per_100g/100")
     profit: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), comment="прибыль по этой позиции: ")
 
+
     order: Mapped["Order"] = relationship("Order", back_populates="items_rel")
     product: Mapped["HairProduct"] = relationship("HairProduct")
 
@@ -35,10 +36,13 @@ class Order(Base):
     final_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Итоговая стоимость заказа после всех изменений и корректировок")
     profit: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Общая прибыль по всему заказу")
     seller_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True, comment="Ссылка на пользователя-продавца, ответственного за заказ")
+    customer_id: Mapped[int | None] = mapped_column(ForeignKey("customers.id"), nullable=True, index=True, comment="Ссылка на покупателя, оформившего заказ")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=text("TIMEZONE('Europe/Moscow', NOW())"), comment="Дата и время создания заказа")
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="Дата и время мягкого удаления заказа, если он был удален")
+    description: Mapped[str | None] = mapped_column(String, comment="Комментарий к заказу")
 
     seller: Mapped["User"] = relationship("User", foreign_keys=[seller_id], back_populates="orders_as_seller")
+    customer: Mapped["Customer"] = relationship("Customer", foreign_keys=[customer_id], back_populates="orders_as_customer")
     items_rel: Mapped[List["OrderItem"]] = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
     @property

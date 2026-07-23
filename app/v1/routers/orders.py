@@ -7,9 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.config import settings
 from app.common.db_depends import get_async_db
-from app.common.models import Order
 from app.common.services.security import get_user_data_from_token
-# from app.v1.services.orders import OrderService
 from app.v1.conf.templates import templates
 from app.v1.enums import OrderStatus, TransactionType
 from app.v1.repositories.dependencies import get_order_repository, get_product_repository, get_transaction_repository, \
@@ -63,7 +61,7 @@ async def get_create_order_page(
             "title": "Создание заказа",
             "products": data["products"],
             "gram_options": [0, 50, 100, 150, 200, 250, 300],
-            "delivery service": ["Авито", "Яндекс", "Почта", "СДЕК", "5Post", "Иное"],
+            "delivery service": ["Авито", "Яндекс", "Почта", "СДЕК", "5Post", "DPD", "Иное"],
         },
     )
 
