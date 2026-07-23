@@ -54,25 +54,83 @@ body {
     gap: 16px;
 }
 
+/* ===== УЛУЧШЕННАЯ ЛЕВАЯ СТРЕЛКА (кнопка "Назад") ===== */
 .back-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #f1f5f9;
-    color: #475569;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     text-decoration: none;
     transition: all 0.3s ease;
-    font-size: 18px;
+    font-size: 22px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    flex-shrink: 0;
+    position: relative;
+}
+
+/* Эффект свечения */
+.back-btn::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 19px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.back-btn:hover::before {
+    opacity: 1;
 }
 
 .back-btn:hover {
-    background: #e2e8f0;
-    transform: translateX(-2px);
+    transform: translateX(-4px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
 }
 
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+.back-btn i {
+    transition: transform 0.3s ease;
+}
+
+.back-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* Пульсирующая анимация для привлечения внимания */
+.back-btn {
+    animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6);
+    }
+}
+
+/* ===== Заголовок ===== */
 .page-header h1 {
     font-size: 26px;
     font-weight: 800;
@@ -207,19 +265,6 @@ body {
     transition-duration: 0.1s;
 }
 
-.wallet-card .wallet-click-hint {
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: all 0.3s ease;
-    color: #667eea;
-    font-size: 14px;
-}
-
-.wallet-card:hover .wallet-click-hint {
-    opacity: 1;
-    transform: translateX(0);
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -344,12 +389,12 @@ body {
     background: #f1f5f9;
 }
 
-/* Футер карточки */
+/* Футер карточки (без правой стрелки) */
 .wallet-card-footer {
     padding-top: 14px;
     border-top: 1px solid #f1f5f9;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -363,19 +408,6 @@ body {
 
 .wallet-updated i {
     font-size: 13px;
-}
-
-.wallet-click-hint {
-    font-size: 14px;
-    color: #667eea;
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: all 0.3s ease;
-}
-
-.wallet-card:hover .wallet-click-hint {
-    opacity: 1;
-    transform: translateX(0);
 }
 
 /* Пустое состояние */
@@ -414,138 +446,7 @@ body {
     font-size: 14px;
 }
 
-/* ===== Адаптивность ===== */
-@media (max-width: 1200px) {
-    .container {
-        max-width: 1100px;
-    }
-}
-
-@media (max-width: 1024px) {
-    .wallets-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-    }
-}
-
-@media (max-width: 768px) {
-    body {
-        padding: 20px 12px;
-    }
-
-    .container {
-        padding: 24px 18px;
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header-left h1 {
-        font-size: 20px;
-    }
-
-    .header-right .total-badge {
-        font-size: 13px;
-        padding: 10px 16px;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .total-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 24px 20px;
-    }
-
-    .total-amount {
-        font-size: 26px;
-    }
-
-    .wallets-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-    }
-
-    .wallet-card {
-        padding: 18px 16px;
-    }
-
-    .wallet-balance {
-        font-size: 22px;
-    }
-
-    .wallet-user-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 16px 12px;
-    }
-
-    .page-header h1 {
-        font-size: 18px;
-    }
-
-    .total-card {
-        padding: 18px 16px;
-    }
-
-    .total-amount {
-        font-size: 22px;
-    }
-
-    .wallets-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .wallet-card {
-        padding: 14px 12px;
-        border-radius: 16px;
-    }
-
-    .wallet-balance {
-        font-size: 18px;
-        padding: 2px 12px;
-    }
-
-    .wallet-username {
-        font-size: 14px;
-    }
-
-    .wallet-email {
-        font-size: 11px;
-    }
-
-    .wallet-id {
-        font-size: 10px;
-        padding: 2px 10px;
-    }
-
-    .wallet-user-avatar {
-        width: 34px;
-        height: 34px;
-        font-size: 13px;
-    }
-
-    .wallet-click-hint {
-        display: none;
-    }
-}
-
-@media (max-width: 380px) {
-    .wallets-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ===== Кнопка История операций (по центру) ===== */
+/* ===== Кнопка История операций ===== */
 .transactions-nav {
     display: flex;
     justify-content: center;
@@ -615,31 +516,138 @@ body {
     transform: translateX(4px);
 }
 
-/* Адаптивность для кнопки */
+/* ===== Адаптивность ===== */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 1100px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .wallets-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+}
+
 @media (max-width: 768px) {
-    .transactions-nav {
-        margin-bottom: 20px;
-        padding-bottom: 16px;
+    body {
+        padding: 20px 12px;
     }
 
-    .transactions-btn {
-        padding: 12px 24px;
-        font-size: 14px;
-        gap: 10px;
+    .container {
+        padding: 24px 18px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-left h1 {
+        font-size: 20px;
+    }
+
+    .header-right .total-badge {
+        font-size: 13px;
+        padding: 10px 16px;
         width: 100%;
         justify-content: center;
     }
 
-    .transactions-btn i {
-        font-size: 16px;
+    .total-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px 20px;
     }
 
-    .transactions-btn i:first-child {
+    .total-amount {
+        font-size: 26px;
+    }
+
+    .wallets-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .wallet-card {
+        padding: 18px 16px;
+    }
+
+    .wallet-balance {
+        font-size: 22px;
+    }
+
+    .wallet-user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+
+    .back-btn {
+        width: 44px;
+        height: 44px;
         font-size: 18px;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 16px 12px;
+    }
+
+    .page-header h1 {
+        font-size: 18px;
+    }
+
+    .total-card {
+        padding: 18px 16px;
+    }
+
+    .total-amount {
+        font-size: 22px;
+    }
+
+    .wallets-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .wallet-card {
+        padding: 14px 12px;
+        border-radius: 16px;
+    }
+
+    .wallet-balance {
+        font-size: 18px;
+        padding: 2px 12px;
+    }
+
+    .wallet-username {
+        font-size: 14px;
+    }
+
+    .wallet-email {
+        font-size: 11px;
+    }
+
+    .wallet-id {
+        font-size: 10px;
+        padding: 2px 10px;
+    }
+
+    .wallet-user-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    .back-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
     .transactions-btn {
         padding: 10px 18px;
         font-size: 13px;
@@ -652,5 +660,11 @@ body {
 
     .transactions-btn i:first-child {
         font-size: 16px;
+    }
+}
+
+@media (max-width: 380px) {
+    .wallets-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -89,6 +89,10 @@ async def create_order_from_form_service(
         user_name: str,
         delivery_service: str
 ):
+    # TODO: Временно данные о покупателе записываем в описание заказа, далее необходимо реализовать логику для
+    # TODO добавления данных пользователя в таблицу Customer, внешний ключ на Customer в таблице Order уже ревлизован
+    customer_data = form.get("customer_data", None)
+    order_number = form.get("order_number")
     items: list[OrderItemCreate] = []
 
     for key, value in form.items():
@@ -118,12 +122,15 @@ async def create_order_from_form_service(
     order_data = OrderCreateSchema(
         items=items,
         seller_id=user_id,
+        order_number=order_number,
+        customer_data=customer_data
     )
 
     return await order_repo.create_order(session=session,
                                          order_data=order_data,
                                          user_name=user_name,
-                                         delivery_service=delivery_service)
+                                         delivery_service=delivery_service,
+                                         )
 
 
 async def delete_order_service(

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Union
 
-from sqlalchemy import Integer, String, DateTime, Boolean
+from sqlalchemy import Integer, String, DateTime, Boolean, text
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,19 @@ class User(Base):
     transactions: Mapped[List["WalletTransaction"]] = relationship("WalletTransaction", back_populates="user")
 
 
+class Customer(Base):
+    __tablename__ = "customers"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    description: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),
+                                                 default=text("TIMEZONE('Europe/Moscow', NOW())"))
 
-
+    orders_as_customer: Mapped[List["Order"]] = relationship(
+        "Order",
+        foreign_keys="Order.customer_id",
+        back_populates="customer"
+    )

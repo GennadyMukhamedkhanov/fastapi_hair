@@ -26,6 +26,8 @@ class OrderCreateSchema(BaseModel):
     items: Annotated[List[OrderItemCreate], Field(..., min_items=1, description="Позиции заказа")]
     seller_id: Annotated[Optional[int], Field(None, gt=0, description="ID продавца")]
     seller_name: Annotated[str, Field(None, gt=0, description="Имя продавца")]
+    order_number: Annotated[str, Field(description="Номер заказа")]
+    customer_data: Annotated[str, Field(None, description="Данные покупателя")]
 
 
 class OrderStatusUpdateSchema(BaseModel):

@@ -27,6 +27,47 @@
         </div>
 
         <form method="post" action="/v1/orders/create" id="order-form">
+            <!-- Блок дополнительной информации -->
+            <div class="info-section">
+                <div class="info-grid">
+                    <!-- Поле: Номер заказа (ОБЯЗАТЕЛЬНОЕ) -->
+                    <div class="info-field required-field">
+                        <label for="order-number" class="field-label">
+                            <span class="field-icon">📋</span>
+                            Номер заказа <span class="required-star">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="order-number"
+                            name="order_number"
+                            class="field-input"
+                            placeholder="Введите номер заказа (например: 3377)"
+                            required
+                            autocomplete="off"
+                        >
+                        <div class="field-hint">Обязательное поле. Укажите уникальный номер заказа</div>
+                        <div class="field-error" id="order-number-error">⚠️ Пожалуйста, укажите номер заказа</div>
+                    </div>
+
+                    <!-- Поле: Данные покупателя (НЕОБЯЗАТЕЛЬНОЕ) -->
+                    <div class="info-field optional-field">
+                        <label for="customer-data" class="field-label">
+                            <span class="field-icon">👤</span>
+                            Данные покупателя
+                        </label>
+                        <input
+                            type="text"
+                            id="customer-data"
+                            name="customer_data"
+                            class="field-input"
+                            placeholder="ФИО, телефон, адрес (по желанию)"
+                            autocomplete="off"
+                        >
+                        <div class="field-hint">Необязательное поле. Укажите контактные данные покупателя</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Блок выбора службы доставки (ОБЯЗАТЕЛЬНЫЙ) -->
             <div class="delivery-section">
                 <div class="delivery-header">
@@ -41,15 +82,12 @@
                         <option value="Почта">Почта</option>
                         <option value="СДЕК">СДЕК</option>
                         <option value="5Post">5Post</option>
+                        <option value="DPD">DPD</option>
                         <option value="Иное">Иное</option>
                     </select>
                     <div class="delivery-warning" id="delivery-warning">
                         ⚠️ Обязательно выберите службу доставки
                     </div>
-                </div>
-                <div class="delivery-note">
-                    <span class="note-icon">ℹ️</span>
-                    <span>Выберите предпочтительную службу доставки для вашего заказа</span>
                 </div>
             </div>
 
@@ -103,8 +141,15 @@
             const deliveryWarning = document.getElementById("delivery-warning");
             const submitBtn = document.getElementById("submit-btn");
 
+            // Поле номера заказа
+            const orderNumberInput = document.getElementById("order-number");
+            const orderNumberError = document.getElementById("order-number-error");
+
             // Функция для проверки валидности формы
             function isFormValid() {
+                // Проверка номера заказа
+                const orderNumberValid = orderNumberInput && orderNumberInput.value.trim() !== "";
+
                 // Проверка выбора товаров
                 const hasSelectedItems = Array.from(selects).some(
                     select => parseInt(select.value) > 0
@@ -113,16 +158,29 @@
                 // Проверка выбора службы доставки
                 const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
 
-                return hasSelectedItems && deliverySelected;
+                return orderNumberValid && hasSelectedItems && deliverySelected;
             }
 
             // Функция обновления состояния кнопки и предупреждений
             function updateFormValidation() {
+                const orderNumberValid = orderNumberInput && orderNumberInput.value.trim() !== "";
                 const hasSelectedItems = Array.from(selects).some(
                     select => parseInt(select.value) > 0
                 );
-
                 const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
+
+                // Обновляем предупреждение для номера заказа
+                if (orderNumberError) {
+                    if (!orderNumberValid && orderNumberInput) {
+                        orderNumberError.style.display = "flex";
+                        orderNumberInput.style.borderColor = "#dc3545";
+                        orderNumberInput.style.backgroundColor = "#fff5f5";
+                    } else {
+                        orderNumberError.style.display = "none";
+                        orderNumberInput.style.borderColor = "#e0e0e0";
+                        orderNumberInput.style.backgroundColor = "white";
+                    }
+                }
 
                 // Обновляем предупреждение для доставки
                 if (deliveryWarning) {
@@ -139,7 +197,7 @@
 
                 // Блокируем/разблокируем кнопку отправки
                 if (submitBtn) {
-                    if (!hasSelectedItems || !deliverySelected) {
+                    if (!orderNumberValid || !hasSelectedItems || !deliverySelected) {
                         submitBtn.disabled = true;
                         submitBtn.style.opacity = "0.5";
                         submitBtn.style.cursor = "not-allowed";
@@ -186,14 +244,25 @@
 
             // Вызываем функции
             colorRowsByTone();
-            updateFormValidation(); // Начальная проверка
+            updateFormValidation();
+
+            // Обработчик ввода номера заказа
+            if (orderNumberInput) {
+                orderNumberInput.addEventListener("input", function() {
+                    updateFormValidation();
+                    // Убираем общую ошибку
+                    errorBlock.classList.add("d-none");
+                });
+
+                orderNumberInput.addEventListener("blur", function() {
+                    updateFormValidation();
+                });
+            }
 
             // Обработчик изменения службы доставки
             if (deliverySelect) {
                 deliverySelect.addEventListener("change", function() {
                     updateFormValidation();
-
-                    // Если доставка выбрана, убираем общую ошибку
                     if (this.value && this.value !== "") {
                         errorBlock.classList.add("d-none");
                     }
@@ -204,12 +273,10 @@
             selects.forEach(function (select) {
                 select.addEventListener("change", function () {
                     updateFormValidation();
-
                     const hasSelectedItems = Array.from(selects).some(
                         item => parseInt(item.value) > 0
                     );
-
-                    if (hasSelectedItems && deliverySelect && deliverySelect.value) {
+                    if (hasSelectedItems && deliverySelect && deliverySelect.value && orderNumberInput.value.trim() !== "") {
                         errorBlock.classList.add("d-none");
                     }
                 });
@@ -217,12 +284,25 @@
 
             // Обработчик отправки формы
             form.addEventListener("submit", function (event) {
+                const orderNumberValid = orderNumberInput && orderNumberInput.value.trim() !== "";
                 const hasSelectedItems = Array.from(selects).some(
                     select => parseInt(select.value) > 0
                 );
-
                 const deliverySelected = deliverySelect && deliverySelect.value && deliverySelect.value !== "";
 
+                // Проверка номера заказа
+                if (!orderNumberValid) {
+                    event.preventDefault();
+                    errorBlock.classList.remove("d-none");
+                    errorBlock.textContent = "⚠️ Укажите номер заказа";
+                    errorBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+                    if (orderNumberInput) {
+                        orderNumberInput.focus();
+                    }
+                    return;
+                }
+
+                // Проверка выбора товаров
                 if (!hasSelectedItems) {
                     event.preventDefault();
                     errorBlock.classList.remove("d-none");
@@ -231,6 +311,7 @@
                     return;
                 }
 
+                // Проверка выбора доставки
                 if (!deliverySelected) {
                     event.preventDefault();
                     errorBlock.classList.remove("d-none");
