@@ -7,68 +7,78 @@
     <link rel="stylesheet" href="/v1/static/css/products.css">
 </head>
 <body>
-    <div class="container">
-        <div class="page-header">
-            <h1>📋 Список товаров</h1>
-            <button class="btn-home" type="button" onclick="location.href='/v1/index/'">
-                🏠 На главную
-            </button>
-        </div>
-
-        <div class="stats">
-            📊 Найдено товаров: <strong>{{ products|length }}</strong>
-        </div>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Тон</th>
-                        <th>Длина (см)</th>
-                        <th>Цена закупки (100г)</th>
-                        <th>Остаток (г)</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for product in products %}
-                    <tr
-                        class="product-row"
-                        data-tone="{{ product.tone.tone if product.tone else 'none' }}"
-                        onclick="location.href='/v1/hairs/{{ product.id }}'"
-                    >
-                        <td>
-                            {{ product.tone.tone if product.tone else '-' }}
-                        </td>
-
-                        <td>
-                            {{ product.length_cm }}
-                        </td>
-
-                        <td class="price">
-                            {{ "%.2f"|format(product.purchase_price_per_100g) }} ₽
-                        </td>
-
-                        <td>
-                            {{ product.stock_grams }} г
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="no-data">
-                            😕 Нет товаров
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="footer">
-            💡 Подсказка: нажмите на строку товара для просмотра деталей
-        </div>
+<div class="container">
+    <div class="page-header">
+        <h1>📋 Список товаров</h1>
+        <button class="btn-home" type="button" onclick="location.href='/v1/index/'">
+            🏠 На главную
+        </button>
+    </div>
+    <div class="page-header">
+        <button class="btn-create-order" type="button" onclick="location.href='/v1/orders/create'">
+            <span class="btn-icon">+</span> Создать заказ
+        </button>
     </div>
 
-    <script src="/v1/static/js/products.js"></script>
+    <div class="stats">
+        📊 Найдено товаров: <strong>{{ products|length }}</strong>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Тон</th>
+                <th>Длина (см)</th>
+                <th>Цена закупки (100г)</th>
+                <th>Цена продажи (100г)</th>
+                <th>Остаток (г)</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for product in products %}
+            <tr
+                    class="product-row"
+                    data-tone="{{ product.tone.tone if product.tone else 'none' }}"
+                    onclick="location.href='/v1/hairs/{{ product.id }}'"
+            >
+                <td>
+                    {{ product.tone.tone if product.tone else '-' }}
+                </td>
+
+                <td>
+                    {{ product.length_cm }}
+                </td>
+
+                <td class="price purchase-price">
+                    {{ "%.2f"|format(product.purchase_price_per_100g) }} ₽
+                </td>
+
+                <td class="price sale-price">
+                    {{ "%.2f"|format(product.sale_price_per_100g) }} ₽
+                </td>
+
+                <td>
+                    {{ product.stock_grams }} г
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="no-data">
+                    😕 Нет товаров
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        💡 Подсказка: нажмите на строку товара для просмотра деталей
+    </div>
+</div>
+
+<script src="/v1/static/js/products.js"></script>
 </body>
 </html>
