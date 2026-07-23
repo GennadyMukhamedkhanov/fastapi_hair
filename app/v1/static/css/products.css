@@ -67,7 +67,7 @@ h1 {
 
 table {
     width: 100%;
-    min-width: 600px;
+    min-width: 700px;
     border-collapse: collapse;
 }
 
@@ -92,11 +92,20 @@ th {
     white-space: nowrap;
 }
 
+.purchase-price {
+    color: #dc3545;
+}
+
+.sale-price {
+    color: #28a745;
+}
+
 /* ширина колонок */
-th:nth-child(1), td:nth-child(1) { width: 25%; }
-th:nth-child(2), td:nth-child(2) { width: 20%; }
-th:nth-child(3), td:nth-child(3) { width: 30%; }
-th:nth-child(4), td:nth-child(4) { width: 25%; }
+th:nth-child(1), td:nth-child(1) { width: 20%; }
+th:nth-child(2), td:nth-child(2) { width: 15%; }
+th:nth-child(3), td:nth-child(3) { width: 20%; }
+th:nth-child(4), td:nth-child(4) { width: 20%; }
+th:nth-child(5), td:nth-child(5) { width: 25%; }
 
 /* кликабельные строки */
 .product-row {
@@ -114,8 +123,15 @@ tbody tr:hover td {
 }
 
 tbody tr:hover .price {
-    color: #d4a100 !important;
     font-weight: bold;
+}
+
+tbody tr:hover .purchase-price {
+    color: #c82333 !important;
+}
+
+tbody tr:hover .sale-price {
+    color: #1e7e34 !important;
 }
 
 .no-data {
@@ -145,8 +161,103 @@ tbody tr:hover .price {
     }
     th, td {
         padding: 8px 12px;
+        font-size: 14px;
     }
     .price {
         white-space: normal;
+    }
+}
+
+/* ===== HEADER ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.order-count {
+    font-size: 14px;
+    color: #666;
+    background: #f5f5f5;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== КНОПКА СОЗДАНИЯ ЗАКАЗА ===== */
+.btn-create-order {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);
+}
+
+.btn-create-order:hover {
+    background: linear-gradient(135deg, #45a049, #388e3c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-create-order:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.btn-create-order .btn-icon {
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .header-left {
+        justify-content: center;
+    }
+
+    .header-right {
+        justify-content: center;
+    }
+
+    .btn-create-order {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
     }
 }
