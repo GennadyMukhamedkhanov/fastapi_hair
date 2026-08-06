@@ -214,3 +214,9 @@ __marimo__/
 *.swp
 *.swo
 .DS_Store
+
+
+backups/
+*.sql
+*.sql.gz
+*.dump

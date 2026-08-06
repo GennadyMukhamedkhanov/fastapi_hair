@@ -1,13 +1,14 @@
+version: '3.8'
 
 services:
   redis:
     image: redis:7-alpine
     container_name: hair_shop_redis_prod
-    command: redis-server --appendonly yes --requirepass 198616Gmredis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -21,11 +22,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: hair_user
-      POSTGRES_PASSWORD: 198616Gm
-      POSTGRES_DB: hair_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hair_user -d hair_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -38,18 +39,29 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     container_name: hair_shop_web_prod
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
-      - ./app:/home/fast/app
       - media_data:/home/fast/media
+      - backup_data:/home/fast/backups
+    ports:
+      - "8000:8000"
     env_file:
-      - ./app/.env.prod
+      - .env.prod
     environment:
-      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
-      - REDIS_PASSWORD=198616Gmredis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=5432
       - DEBUG=False
     depends_on:
       db:
@@ -60,14 +72,104 @@ services:
     networks:
       - hair_network
 
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: hair_shop_celery_worker_prod
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
+    volumes:
+      - media_data:/home/fast/media
+      - backup_data:/home/fast/backups
+    env_file:
+      - .env.prod
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов - ВАЖНО!
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=5432
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - hair_network
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: hair_shop_celery_beat_prod
+    command: celery -A app.celery_app beat --loglevel=info
+    volumes:
+      - backup_data:/home/fast/backups
+    env_file:
+      - .env.prod
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов - ВАЖНО!
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=5432
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery_worker:
+        condition: service_started
+    restart: always
+    networks:
+      - hair_network
+
+  flower:
+    image: mher/flower:latest
+    container_name: hair_shop_flower_prod
+    command: celery -A app.celery_app flower --port=5555 --broker=redis://:${REDIS_PASSWORD}@redis:6379/0
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    restart: always
+    networks:
+      - hair_network
+
   nginx:
     image: nginx:alpine
     container_name: hair_shop_nginx_prod
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./app/common/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - media_data:/var/www/media
+      - ./ssl:/etc/nginx/ssl
     depends_on:
       - web
     restart: always
@@ -78,6 +180,7 @@ volumes:
   postgres_data:
   media_data:
   redis_data:
+  backup_data:  # Volume для бэкапов (сохраняется между перезапусками)
 
 networks:
   hair_network:

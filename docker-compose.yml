@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   redis:
     image: redis:7-alpine
@@ -18,10 +20,15 @@ services:
 
   web:
     build: .
+    container_name: hair_shop_web_dev
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./app:/home/fast/app
       - ./alembic.ini:/home/fast/alembic.ini
       - media_data:/home/fast/media
+      - ./backups:/home/fast/backups  # Добавляем бэкапы
+    ports:
+      - "8000:8000"
     env_file:
       - ./app/.env
     environment:
@@ -29,6 +36,15 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=hair_db
+      - POSTGRES_USER=hair_user
+      - POSTGRES_PASSWORD=198616Gm
+      - POSTGRES_PORT=5432
     depends_on:
       db:
         condition: service_healthy
@@ -38,14 +54,86 @@ services:
     networks:
       - hair_network
 
+  celery_worker:
+    build: .
+    container_name: hair_shop_celery_worker_dev
+    command: celery -A app.celery_app worker --loglevel=info
+    volumes:
+      - ./app:/home/fast/app
+      - ./alembic.ini:/home/fast/alembic.ini
+      - media_data:/home/fast/media
+      - ./backups:/home/fast/backups  # Добавляем бэкапы
+    env_file:
+      - ./app/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов - ВАЖНО!
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=hair_db
+      - POSTGRES_USER=hair_user
+      - POSTGRES_PASSWORD=198616Gm
+      - POSTGRES_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hair_network
+
+  celery_beat:
+    build: .
+    container_name: hair_shop_celery_beat_dev
+    command: celery -A app.celery_app beat --loglevel=info
+    volumes:
+      - ./app:/home/fast/app
+      - ./alembic.ini:/home/fast/alembic.ini
+      - ./backups:/home/fast/backups  # Добавляем бэкапы
+    env_file:
+      - ./app/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://hair_user:198616Gm@db:5432/hair_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - BACKUP_DIR=/home/fast/backups
+      # Переменные для бэкапов - ВАЖНО!
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=hair_db
+      - POSTGRES_USER=hair_user
+      - POSTGRES_PASSWORD=198616Gm
+      - POSTGRES_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery_worker:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - hair_network
+
   db:
     image: postgres:15-alpine
+    container_name: hair_shop_db_dev
     environment:
       POSTGRES_USER: hair_user
       POSTGRES_PASSWORD: 198616Gm
       POSTGRES_DB: hair_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hair_user -d hair_db"]
       interval: 10s
@@ -57,18 +145,20 @@ services:
 
   nginx:
     image: nginx:alpine
+    container_name: hair_shop_nginx_dev
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./app/common/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - media_data:/var/www/media
+      - ./backups:/var/www/backups  # Добавляем для доступа к бэкапам
     depends_on:
       - web
     restart: unless-stopped
     networks:
       - hair_network
 
-  # Опционально: Redis Commander для визуального управления (только для разработки)
   redis-commander:
     image: rediscommander/redis-commander:latest
     container_name: hair_shop_redis_commander_dev

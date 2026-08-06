@@ -30,9 +30,9 @@
             <tr>
                 <th>Тон</th>
                 <th>Длина (см)</th>
-                <th>Цена закупки (100г)</th>
-                <th>Цена продажи (100г)</th>
                 <th>Остаток (г)</th>
+                <th>Цена закупки (100г)</th>
+                <th>Рекомендуемая цена продажи (100г)</th>
             </tr>
             </thead>
 
@@ -51,16 +51,16 @@
                     {{ product.length_cm }}
                 </td>
 
+                <td>
+                    {{ product.stock_grams }} г
+                </td>
+
                 <td class="price purchase-price">
                     {{ "%.2f"|format(product.purchase_price_per_100g) }} ₽
                 </td>
 
                 <td class="price sale-price">
                     {{ "%.2f"|format(product.sale_price_per_100g) }} ₽
-                </td>
-
-                <td>
-                    {{ product.stock_grams }} г
                 </td>
             </tr>
             {% else %}
