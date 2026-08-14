@@ -56,7 +56,6 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - BACKUP_DIR=/home/fast/backups
-      # Переменные для бэкапов
       - POSTGRES_HOST=db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -92,7 +91,6 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - BACKUP_DIR=/home/fast/backups
-      # Переменные для бэкапов - ВАЖНО!
       - POSTGRES_HOST=db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -127,7 +125,6 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - BACKUP_DIR=/home/fast/backups
-      # Переменные для бэкапов - ВАЖНО!
       - POSTGRES_HOST=db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -146,13 +143,18 @@ services:
       - hair_network
 
   flower:
-    image: mher/flower:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     container_name: hair_shop_flower_prod
     command: celery -A app.celery_app flower --port=5555 --broker=redis://redis:6379/0
     environment:
+      - PYTHONPATH=/home/fast
       - REDIS_PASSWORD=
+      - CELERY_BROKER_URL=redis://redis:6379/0
     ports:
       - "5555:5555"
+    working_dir: /home/fast
     depends_on:
       - redis
       - celery_worker
