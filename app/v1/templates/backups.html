@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/v1/static/css/backups.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">💾</div>
+                <div>
+                    <h1>{{ title }}</h1>
+                    <p class="subtitle">Всего бэкапов: {{ backup_count }}</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-back" type="button" onclick="location.href='/v1/statistics/'">
+                    ← Назад к статистике
+                </button>
+                <button class="btn-home" type="button" onclick="location.href='/v1/index/'">
+                    🏠 На главную
+                </button>
+            </div>
+        </div>
+
+        <!-- Кнопка создания бэкапа -->
+        <div class="actions-section">
+            <div class="actions-grid">
+                <button class="action-card" id="createBackupBtn" onclick="createBackup()">
+                    <div class="action-icon">🆕</div>
+                    <h3>Создать бэкап</h3>
+                    <p>Создать сжатую резервную копию БД</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Список бэкапов -->
+        <div class="backups-list">
+            <div class="list-header">
+                <h2>📋 Список бэкапов</h2>
+                <button class="btn-refresh" onclick="loadBackups()">
+                    🔄 Обновить
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Дата создания</th>
+                            <th>Размер</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupsTableBody">
+                        {% if backups %}
+                            {% for backup in backups %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ backup.created_at }}</td>
+                                <td>{{ backup.size }}</td>
+                                <td><span class="status-badge status-success">✅ Сжат</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-download" onclick="downloadBackup('{{ backup.name }}')" title="Скачать">
+                                            ⬇️ Скачать
+                                        </button>
+                                        <button class="btn-restore" onclick="restoreBackup('{{ backup.name }}')" title="Восстановить">
+                                            ♻️ Восстановить
+                                        </button>
+                                        <button class="btn-delete" onclick="deleteBackup('{{ backup.name }}')" title="Удалить">
+                                            🗑️ Удалить
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <div class="no-data-content">
+                                        <span class="no-data-icon">📭</span>
+                                        <span>Нет созданных бэкапов</span>
+                                        <span class="no-data-hint">Создайте первый бэкап, нажав на кнопку выше</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Уведомления -->
+        <div id="notification" class="notification"></div>
+
+        <div class="footer">
+            <span>💡 Бэкапы создаются в сжатом формате .gz (экономия до 90% места)</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== Уведомления =====
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // ===== Создание бэкапа через Celery =====
+        async function createBackup() {
+            const btn = document.getElementById('createBackupBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Запуск...';
+
+            try {
+                const response = await fetch('/v1/backups/create', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification(`✅ ${data.message} (ID: ${data.task_id})`, 'success');
+
+                    // Начинаем проверку статуса
+                    checkBackupStatus(data.task_id);
+                } else {
+                    showNotification(`❌ ${data.detail || 'Ошибка создания'}`, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '🆕 Создать бэкап';
+                }
+            } catch (error) {
+                showNotification(`❌ Ошибка: ${error.message}`, 'error');
+                btn.disabled = false;
+                btn.innerHTML = '🆕 Создать бэкап';
+            }
+        }
+
+        // ===== Проверка статуса задачи =====
+        async function checkBackupStatus(taskId) {
+            const btn = document.getElementById('createBackupBtn');
+
+            const check = async () => {
+                try {
+                    const response = await fetch(`/v1/backups/status/${taskId}`);
+                    const data = await response.json();
+
+                    if (data.status === 'pending' || data.status === 'started') {
+                        btn.innerHTML = `⏳ ${data.message}...`;
+                        setTimeout(check, 3000);
+                    } else if (data.status === 'success') {
+                        btn.innerHTML = '✅ Готово!';
+                        showNotification(`✅ Бэкап создан! Размер: ${data.result.compressed_size_mb} MB`, 'success');
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = '🆕 Создать бэкап';
+                            loadBackups();
+                        }, 2000);
+                    } else if (data.status === 'error') {
+                        showNotification(`❌ Ошибка: ${data.message}`, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '🆕 Создать бэкап';
+                    }
+                } catch (error) {
+                    showNotification(`❌ Ошибка проверки статуса: ${error.message}`, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '🆕 Создать бэкап';
+                }
+            };
+
+            await check();
+        }
+
+        // ===== Загрузка списка =====
+        async function loadBackups() {
+            try {
+                const response = await fetch('/v1/backups/list');
+                const data = await response.json();
+
+                const tbody = document.getElementById('backupsTableBody');
+
+                if (data.count === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="no-data">
+                                <div class="no-data-content">
+                                    <span class="no-data-icon">📭</span>
+                                    <span>Нет созданных бэкапов</span>
+                                    <span class="no-data-hint">Создайте первый бэкап, нажав на кнопку выше</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+
+                    document.querySelector('.subtitle').textContent = 'Всего бэкапов: 0';
+                    return;
+                }
+
+                let html = '';
+                data.backups.forEach((backup, index) => {
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${backup.created_at}</td>
+                            <td>${backup.size}</td>
+                            <td><span class="status-badge status-success">✅ Сжат</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-download" onclick="downloadBackup('${backup.name}')" title="Скачать">
+                                        ⬇️ Скачать
+                                    </button>
+                                    <button class="btn-restore" onclick="restoreBackup('${backup.name}')" title="Восстановить">
+                                        ♻️ Восстановить
+                                    </button>
+                                    <button class="btn-delete" onclick="deleteBackup('${backup.name}')" title="Удалить">
+                                        🗑️ Удалить
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                document.querySelector('.subtitle').textContent = `Всего бэкапов: ${data.count}`;
+
+            } catch (error) {
+                showNotification(`❌ Ошибка загрузки списка: ${error.message}`, 'error');
+            }
+        }
+
+        // ===== Скачивание бэкапа =====
+        function downloadBackup(filename) {
+            window.location.href = `/v1/backups/download/${filename}`;
+            showNotification(`⬇️ Скачивание: ${filename}`, 'info');
+        }
+
+        // ===== Восстановление =====
+        async function restoreBackup(filename) {
+            if (!confirm(`⚠️ Восстановить БД из бэкапа "${filename}"?\n\nЭто действие перезапишет текущие данные!`)) {
+                return;
+            }
+
+            try {
+                showNotification(`♻️ Восстановление из ${filename}...`, 'info');
+
+                const response = await fetch('/v1/backups/restore', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename: filename })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification(`✅ ${data.message}`, 'success');
+                    setTimeout(() => loadBackups(), 2000);
+                } else {
+                    showNotification(`❌ ${data.detail || 'Ошибка восстановления'}`, 'error');
+                }
+            } catch (error) {
+                showNotification(`❌ Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // ===== Удаление бэкапа =====
+        async function deleteBackup(filename) {
+            if (!confirm(`🗑️ Удалить бэкап "${filename}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/v1/backups/delete/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification(`✅ ${data.message}`, 'success');
+                    loadBackups();
+                } else {
+                    showNotification(`❌ ${data.detail || 'Ошибка удаления'}`, 'error');
+                }
+            } catch (error) {
+                showNotification(`❌ Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // ===== Автозагрузка при открытии =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Список уже загружен с сервера
+        });
+    </script>
+</body>
+</html>

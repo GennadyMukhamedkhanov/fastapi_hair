@@ -1,0 +1,233 @@
+/* app/static/css/statistics.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    padding: 20px;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+}
+
+/* ===== HEADER ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.header-left h1 {
+    font-size: 28px;
+    color: #333;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-home {
+    background: #8b5cf6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    background: #7c3aed;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* ===== GRID С КАРТОЧКАМИ ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+    border-color: #ced4da;
+}
+
+.stat-card .stat-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.stat-card h3 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+}
+
+.stat-card p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+    flex-grow: 1;
+}
+
+/* ===== ОБЫЧНЫЕ КНОПКИ-ЗАГЛУШКИ ===== */
+.btn-stat {
+    background: #e9ecef;
+    color: #495057;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-stat:hover {
+    background: #dee2e6;
+    transform: scale(1.02);
+}
+
+/* ===== КНОПКА BACKUPS (особенная) ===== */
+.stat-card-backup {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #0f3460;
+}
+
+.stat-card-backup:hover {
+    border-color: #e94560;
+    box-shadow: 0 8px 30px rgba(233, 69, 96, 0.2);
+}
+
+.stat-card-backup h3 {
+    color: #fff;
+}
+
+.stat-card-backup p {
+    color: #a8a8b3;
+}
+
+.btn-backup {
+    background: linear-gradient(135deg, #e94560, #c23152);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-backup:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+}
+
+.btn-backup:active {
+    transform: scale(0.97);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn-home {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 20px;
+    }
+
+    .stat-card .stat-icon {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
