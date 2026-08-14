@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Any
 import shutil
 import gzip
+from app.common.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ def get_backup_dir() -> Path:
     Определяет директорию для бэкапов с автоматическим созданием
     """
     # Приоритет 1: Используем переменную окружения
-    env_dir = os.getenv('BACKUP_DIR')
+    env_dir = settings.env_dir
     if env_dir:
         backup_dir = Path(env_dir)
         try:
@@ -85,11 +86,11 @@ def create_backup_db() -> Dict[str, Any]:
         logger.info(f"⏰ Создание бэкапа: {filepath}")
 
         # Параметры БД
-        db_name = os.getenv('POSTGRES_DB', 'fastapi_hair')
-        db_user = os.getenv('POSTGRES_USER', 'postgres')
-        db_host = os.getenv('POSTGRES_HOST', 'db')
-        db_port = os.getenv('POSTGRES_PORT', '5432')
-        db_password = os.getenv('POSTGRES_PASSWORD', '')
+        db_name = settings.db_name
+        db_user = settings.db_user
+        db_host = settings.db_host
+        db_port = settings.db_port
+        db_password = settings.db_password
 
         # Команда pg_dump
         cmd = [

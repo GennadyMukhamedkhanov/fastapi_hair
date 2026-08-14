@@ -32,6 +32,8 @@ class Settings:
     app_name: str = os.getenv("APP_NAME", "Private Site")
     app_env: str = os.getenv("APP_ENV", "dev")
 
+    mail_user_from_backups: str = os.getenv("MAIL_USER_FROM_BACKUPS", "")
+
     jwt_secret: str = os.getenv("JWT_SECRET", "")
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
     jwt_expire_days: int = int(os.getenv("JWT_EXPIRE_DAYS", "30"))
@@ -56,6 +58,15 @@ class Settings:
     redis_port: int = int(os.getenv("REDIS_PORT", "6379"))
     redis_db: int = int(os.getenv("REDIS_DB", "0"))
     redis_password: str | None = os.getenv("REDIS_PASSWORD", None)
+
+    # Параметры БД
+    db_name = os.getenv('POSTGRES_DB', '')
+    db_user = os.getenv('POSTGRES_USER', '')
+    db_host = os.getenv('POSTGRES_HOST', 'db')
+    db_port = os.getenv('POSTGRES_PORT', '5432')
+    db_password = os.getenv('POSTGRES_PASSWORD', '')
+
+    env_dir = os.getenv('BACKUP_DIR')
 
     class Config:
         env_file = ".env.prod"

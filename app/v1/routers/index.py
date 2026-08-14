@@ -1,11 +1,9 @@
-from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from pathlib import Path
 from fastapi import APIRouter, Request, Depends
-from decimal import Decimal
-from app.v1.conf.templates import templates
+from fastapi.responses import HTMLResponse
 
-from app.v1.services.wallets import get_balance_wallet_user_service, get_wallets_service
+from app.v1.conf.templates import templates
+from app.v1.services.wallets import get_wallets_service
 
 # Создаём маршрутизатор с префиксом и тегом
 router = APIRouter(

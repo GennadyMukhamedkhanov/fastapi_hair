@@ -6,6 +6,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 @celery_app.task(name='app.tasks.send_email.send_email_client')
 def send_email_client(recipient: str, text: str):
     """
