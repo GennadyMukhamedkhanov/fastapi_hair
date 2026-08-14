@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.v1.main import app_v1
 from app.common.services.auth_memory import auth_memory_store
+from fastapi.responses import RedirectResponse
 
 
 @asynccontextmanager
@@ -30,6 +31,11 @@ app = FastAPI(
 
 # Монтируем версии
 app.mount("/v1", app_v1)
+
+# Редирект с корня на /v1
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/v1/index", status_code=303)
 
 
 # Корневой эндпоинт с информацией о версиях

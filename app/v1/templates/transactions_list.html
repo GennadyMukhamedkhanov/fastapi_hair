@@ -115,7 +115,6 @@
                         <th class="col-amount">Сумма</th>
                         <th class="col-description">Описание</th>
                         <th class="col-date">Дата создания</th>
-                        <th class="col-deleted">Удален</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -215,22 +214,11 @@
                                     {{ transaction.created_at_display or '—' }}
                                 </span>
                             </td>
-                            <td class="col-deleted">
-                                {% if transaction.is_deleted %}
-                                    <span class="deleted-badge deleted-yes">
-                                        <i class="fas fa-check-circle"></i> Да
-                                    </span>
-                                {% else %}
-                                    <span class="deleted-badge deleted-no">
-                                        <i class="fas fa-circle"></i> Нет
-                                    </span>
-                                {% endif %}
-                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="10" class="empty-row">
+                            <td colspan="9" class="empty-row">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox"></i>
                                     <span>Транзакции не найдены</span>
@@ -275,7 +263,6 @@
             function parseDate(dateStr) {
                 if (!dateStr) return null;
                 try {
-                    // Если это уже объект Date или строка в ISO формате
                     const d = new Date(dateStr);
                     if (isNaN(d.getTime())) return null;
                     d.setHours(0, 0, 0, 0);
@@ -330,11 +317,9 @@
                 const searchQuery = searchInput.value.toLowerCase().trim();
                 const selectedPeriod = dateFilter.value;
 
-                // Получаем даты из полей ввода или из периода
                 let fromDate = dateFrom.value ? parseDate(dateFrom.value) : null;
                 let toDate = dateTo.value ? parseDate(dateTo.value) : null;
 
-                // Если выбран предустановленный период и не указаны свои даты
                 if (selectedPeriod !== 'all' && !dateFrom.value && !dateTo.value) {
                     const range = getDateRange(selectedPeriod);
                     fromDate = range.from;
@@ -348,26 +333,19 @@
                     const rowDateStr = row.dataset.date || '';
                     const rowDate = rowDateStr ? parseDate(rowDateStr) : null;
 
-                    // Фильтр по типу
                     const typeMatch = selectedType === 'all' || rowType === selectedType;
-
-                    // Фильтр по пользователю
                     const userMatch = selectedUser === 'all' || rowUsername === selectedUser;
-
-                    // Поиск по описанию
                     const searchMatch = searchQuery === '' ||
                                       rowDescription.toLowerCase().includes(searchQuery) ||
                                       rowUsername.toLowerCase().includes(searchQuery) ||
                                       row.querySelector('.user-name')?.textContent.toLowerCase().includes(searchQuery) ||
                                       false;
 
-                    // Фильтр по дате
                     let dateMatch = true;
                     if (fromDate && rowDate) {
                         if (rowDate < fromDate) dateMatch = false;
                     }
                     if (toDate && rowDate) {
-                        // Добавляем 1 день к toDate, чтобы включить весь день
                         const endDate = new Date(toDate);
                         endDate.setDate(endDate.getDate() + 1);
                         if (rowDate >= endDate) dateMatch = false;
@@ -381,11 +359,9 @@
                 });
             }
 
-            // Обработчики событий
             typeFilter.addEventListener('change', filterTable);
             userFilter.addEventListener('change', filterTable);
             dateFilter.addEventListener('change', function() {
-                // Если выбран период, очищаем поля дат
                 if (this.value !== 'all') {
                     dateFrom.value = '';
                     dateTo.value = '';
@@ -406,7 +382,6 @@
             });
             searchInput.addEventListener('input', filterTable);
 
-            // Сброс фильтров
             clearBtn.addEventListener('click', function() {
                 typeFilter.value = 'all';
                 userFilter.value = 'all';
@@ -417,7 +392,6 @@
                 filterTable();
             });
 
-            // Анимация появления строк
             rows.forEach((row, index) => {
                 row.style.opacity = '0';
                 row.style.animationDelay = `${index * 0.05}s`;
