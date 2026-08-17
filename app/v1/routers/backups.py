@@ -25,8 +25,6 @@ router = APIRouter(
 BACKUP_DIR = get_backup_dir()
 
 
-
-
 @router.get("/", response_class=HTMLResponse)
 async def get_page_forms_backup(request: Request):
     """Страница управления бэкапами"""
@@ -140,9 +138,6 @@ async def get_backup_status(task_id: str):
 
 @router.post("/restore")
 async def restore_backup(request: Request):
-    """
-    Восстанавливает БД из выбранного бэкапа
-    """
     try:
         data = await request.json()
         filename = data.get("filename")
@@ -155,40 +150,53 @@ async def restore_backup(request: Request):
         if not filepath.exists():
             raise HTTPException(status_code=404, detail="Файл бэкапа не найден")
 
-        # Проверяем, что это сжатый файл
         if not filename.endswith('.gz'):
             raise HTTPException(status_code=400, detail="Файл должен быть сжатым (.gz)")
 
-        # Распаковываем во временный файл
         temp_file = BACKUP_DIR / f"temp_restore_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
 
         try:
-            # Распаковываем .gz
+            # 👇 РАСПАКОВЫВАЕМ И ФИЛЬТРУЕМ
             with gzip.open(filepath, 'rb') as f_in:
-                with open(temp_file, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+                content = f_in.read().decode('utf-8')
 
-            # Параметры БД из .env
-            db_name = os.getenv('POSTGRES_DB', 'hair_db')
-            db_user = os.getenv('POSTGRES_USER', 'hair_user')
-            db_host = os.getenv('POSTGRES_HOST', 'db')
-            db_port = os.getenv('POSTGRES_PORT', '5432')
-            db_password = os.getenv('POSTGRES_PASSWORD', '')
+            # Удаляем проблемные строки с transaction_timeout
+            lines = content.splitlines()
+            filtered_lines = [
+                line for line in lines
+                if 'transaction_timeout' not in line.lower()
+            ]
+            filtered_content = '\n'.join(filtered_lines)
 
-            # Команда для восстановления
+            # Сохраняем во временный файл
+            temp_file.write_text(filtered_content, encoding='utf-8')
+
+            db_name = settings.db_name
+            db_user = settings.db_user
+            db_host = settings.db_host
+            db_port = settings.db_port
+            db_password = settings.db_password
+
+            print(f"🔍 Восстановление: {filename}")
+            print(f"📊 БД: {db_name}, Пользователь: {db_user}, Хост: {db_host}")
+            print(f"🔑 Пароль: {'***' if db_password else '⚠️ ПАРОЛЬ ПУСТОЙ!'}")
+
             cmd = [
                 "psql",
                 "-U", db_user,
                 "-h", db_host,
                 "-p", db_port,
                 "-d", db_name,
+                "-v", "ON_ERROR_STOP=1",
                 "--file=" + str(temp_file),
-                "--single-transaction"
+                "--single-transaction",
             ]
 
             env = os.environ.copy()
             if db_password:
                 env["PGPASSWORD"] = db_password
+            else:
+                print("⚠️ ПАРОЛЬ НЕ ПЕРЕДАН!")
 
             result = subprocess.run(
                 cmd,
@@ -196,10 +204,13 @@ async def restore_backup(request: Request):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                timeout=600  # 10 минут на восстановление
+                timeout=600
             )
 
-            # Удаляем временный файл
+            print(f"📋 Результат: {result.returncode}")
+            if result.stderr:
+                print(f"📋 STDERR: {result.stderr[:500]}")
+
             if temp_file.exists():
                 temp_file.unlink()
 
