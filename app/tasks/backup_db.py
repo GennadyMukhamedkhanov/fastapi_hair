@@ -104,6 +104,8 @@ def create_backup_db() -> Dict[str, Any]:
             "--if-exists",
             "--no-owner",
             "--no-privileges",
+            "--inserts",  # 👈 ДОБАВИТЬ
+            "--column-inserts",  # 👈 ДОБАВИТЬ
         ]
 
         env = os.environ.copy()
