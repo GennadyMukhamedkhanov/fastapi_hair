@@ -7,85 +7,83 @@
     <link rel="stylesheet" href="/v1/static/css/statistics.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Шапка -->
-        <div class="page-header">
-            <div class="header-left">
-                <h1>📊 {{ title }}</h1>
-            </div>
-            <div class="header-right">
-                <button class="btn-home" type="button" onclick="location.href='/v1/index/'">
-                    🏠 На главную
-                </button>
-            </div>
+<div class="container">
+    <!-- Шапка -->
+    <div class="page-header">
+        <div class="header-left">
+            <h1>📊 {{ title }}</h1>
+        </div>
+        <div class="header-right">
+            <button class="btn-home" type="button" onclick="location.href='/v1/index/'">
+                🏠 На главную
+            </button>
+        </div>
+    </div>
+
+    <!-- Сетка с кнопками -->
+    <div class="stats-grid">
+        <!-- Продажи -->
+        <div class="stat-card" onclick="showMessage('Продажи')">
+            <div class="stat-icon">📈</div>
+            <h3>Продажи</h3>
+            <p>Статистика по продажам</p>
+            <button class="btn-stat" type="button">
+                Перейти →
+            </button>
         </div>
 
-        <!-- Сетка с кнопками -->
-        <div class="stats-grid">
-            <!-- Кнопка-заглушка 1 -->
-            <div class="stat-card">
-                <div class="stat-icon">📈</div>
-                <h3>Продажи</h3>
-                <p>Статистика по продажам</p>
-                <button class="btn-stat" type="button" onclick="showMessage('Продажи')">
-                    Перейти
-                </button>
-            </div>
-
-            <!-- Кнопка-заглушка 2 -->
-            <div class="stat-card">
-                <div class="stat-icon">💰</div>
-                <h3>Выручка</h3>
-                <p>Аналитика по выручке</p>
-                <button class="btn-stat" type="button" onclick="showMessage('Выручка')">
-                    Перейти
-                </button>
-            </div>
-
-            <!-- Кнопка-заглушка 3 -->
-            <div class="stat-card">
-                <div class="stat-icon">📦</div>
-                <h3>Товары</h3>
-                <p>Остатки и оборачиваемость</p>
-                <button class="btn-stat" type="button" onclick="showMessage('Товары')">
-                    Перейти
-                </button>
-            </div>
-
-            <!-- Кнопка-заглушка 4 -->
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <h3>Клиенты</h3>
-                <p>Аналитика по клиентам</p>
-                <button class="btn-stat" type="button" onclick="showMessage('Клиенты')">
-                    Перейти
-                </button>
-            </div>
-
-            <!-- Кнопка-заглушка 5 -->
-            <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <h3>Отчёты</h3>
-                <p>Генерация отчётов</p>
-                <button class="btn-stat" type="button" onclick="showMessage('Отчёты')">
-                    Перейти
-                </button>
-            </div>
-
-            <!-- Кнопка BACKUPS (показывается только если button_backups = True) -->
-            {% if button_backups %}
-            <div class="stat-card stat-card-backup">
-                <div class="stat-icon">💾</div>
-                <h3>Backups</h3>
-                <p>Управление резервными копиями</p>
-                <button class="btn-backup" type="button" onclick="location.href='/v1/backups/'">
-                    💾 Перейти к бэкапам
-                </button>
-            </div>
-            {% endif %}
+        <!-- Выручка -->
+        <div class="stat-card" onclick="showMessage('Выручка')">
+            <div class="stat-icon">💰</div>
+            <h3>Выручка</h3>
+            <p>Аналитика по выручке</p>
+            <button class="btn-stat" type="button">
+                Перейти →
+            </button>
         </div>
 
+        <!-- Сверка товаров на складе -->
+        <div class="stat-card warehouse-card" onclick="window.location.href='/v1/warehouse'">
+            <div class="stat-icon">📦</div>
+            <h3>Сверка товаров на складе</h3>
+            <p>Остатки на складе</p>
+            <button class="btn-stat btn-warehouse" type="button">
+                Перейти →
+            </button>
+        </div>
 
+        <!-- Клиенты -->
+        <div class="stat-card" onclick="showMessage('Клиенты')">
+            <div class="stat-icon">👥</div>
+            <h3>Клиенты</h3>
+            <p>Аналитика по клиентам</p>
+            <button class="btn-stat" type="button">
+                Перейти →
+            </button>
+        </div>
+
+        <!-- Отчёты -->
+        <div class="stat-card" onclick="showMessage('Отчёты')">
+            <div class="stat-icon">📊</div>
+            <h3>Отчёты</h3>
+            <p>Генерация отчётов</p>
+            <button class="btn-stat" type="button">
+                Перейти →
+            </button>
+        </div>
+
+        <!-- Backups (показывается только если button_backups = True) -->
+        {% if button_backups %}
+        <div class="stat-card backup-card" onclick="location.href='/v1/backups/'">
+            <div class="stat-icon">💾</div>
+            <h3>Backups</h3>
+            <p>Управление резервными копиями</p>
+            <button class="btn-stat btn-backup" type="button">
+                Перейти →
+            </button>
+        </div>
+        {% endif %}
+    </div>
 
     <script>
         function showMessage(section) {

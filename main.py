@@ -38,16 +38,7 @@ async def root():
     return RedirectResponse(url="/v1/index", status_code=303)
 
 
-# Корневой эндпоинт с информацией о версиях
-@app.get("/")
-async def root():
-    return {
-        "message": "Добро пожаловать в API CRM hair!",
-        "versions": {
-            "v1": "/v1/docs",
-            "v2": "/v2/docs (на данный момент не работает)",
-        }
-    }
+
 
 
 if __name__ == "__main__":

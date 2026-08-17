@@ -22,7 +22,6 @@ else:
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
-
 def _split_emails(raw: str) -> Set[str]:
     return {item.strip().lower() for item in raw.split(",") if item.strip()}
 

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сверка товаров на складах</title>
+    <link rel="stylesheet" href="/v1/static/css/warehouse.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1><span>📦</span> Сверка товаров на складах</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-stat" onclick="window.location.href='/v1/statistics/'">
+                    <span class="btn-icon">📊</span> Статистика
+                </button>
+                <button class="btn btn-home" onclick="window.location.href='/v1/index/'">
+                    <span class="btn-icon">🏠</span> На главную
+                </button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="controls-left">
+                <button class="btn btn-success" onclick="saveAll()">
+                    <span class="btn-icon">💾</span> Сохранить всё
+                </button>
+                <div class="controls-right">
+                <button class="btn btn-refresh" onclick="location.reload()">
+                    <span class="btn-icon">🔄</span> Обновить
+                </button>
+
+            </div>
+            <button class="btn btn-danger" onclick="resetAll()">
+                    <span class="btn-icon">🗑️</span> Сбросить всё
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats" id="stats-container">
+            <div class="stats-item">
+                <span class="label">Всего позиций</span>
+                <span class="value" id="total-products">0</span>
+            </div>
+            <div class="stats-item">
+                <span class="label">Общий остаток</span>
+                <span class="value" id="total-stock">0 г</span>
+            </div>
+            <div class="stats-item">
+                <span class="label">Склад "Дмитриева"</span>
+                <span class="value" id="total-dmitrieva">0 г</span>
+            </div>
+            <div class="stats-item">
+                <span class="label">Склад "Зеленая"</span>
+                <span class="value" id="total-zelenaya">0 г</span>
+            </div>
+            <div class="stats-item">
+                <span class="label">Статус сверки</span>
+                <span class="value" id="status-badge">✅ Совпадает</span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+            <table class="products-table" id="products-table">
+                <thead>
+                    <tr>
+                        <th>Тон</th>
+                        <th>Длина</th>
+                        <th>Остаток (продукт)</th>
+                        <th>Склад "Дмитриева"</th>
+                        <th>Склад "Зеленая"</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Rows will be rendered by JavaScript -->
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2"><strong>Итого:</strong></td>
+                        <td id="total-stock-footer">0 г</td>
+                        <td id="total-dmitrieva-footer">0 г</td>
+                        <td id="total-zelenaya-footer">0 г</td>
+                        <td id="total-sum-footer">0 г</td>
+                        <td id="total-status-footer">—</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Передаём данные из бэкенда -->
+    <script>
+        // Глобальная переменная с товарами
+        const products = {{ products | tojson | safe }};
+        console.log('📦 Товаров получено:', products ? products.length : 0);
+    </script>
+    <script src="/v1/static/js/warehouse.js"></script>
+</body>
+</html>

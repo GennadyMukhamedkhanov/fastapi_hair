@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.v1.middlewares.auth_middleware import AuthMiddleware
-from app.v1.routers import auth_pages, statistics
+from app.v1.routers import auth_pages, statistics, warehouse
 from app.v1.routers import index
 from app.v1.routers import orders
 from app.v1.routers import products
@@ -26,3 +26,5 @@ app_v1.include_router(wallets.router, prefix="/wallets", tags=["wallets"])
 app_v1.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 app_v1.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
 app_v1.include_router(backups.router, prefix="/backups", tags=["backups"])
+# Сверка товаров на складе
+app_v1.include_router(warehouse.router, prefix="/warehouse", tags=["warehouse"])

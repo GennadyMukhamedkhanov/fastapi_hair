@@ -24,7 +24,7 @@ async def get_page_statistics(
         raise HTTPException(status_code=401, detail="Не авторизован")
 
     token_user_mail = payload.get("sub", None) if payload else None
-
+    ddd = settings.mail_user_from_backups
     if token_user_mail != settings.mail_user_from_backups:
         button_backups = False
     else:
