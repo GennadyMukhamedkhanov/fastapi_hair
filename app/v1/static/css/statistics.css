@@ -50,21 +50,24 @@ body {
 }
 
 .btn-home {
-    background: #8b5cf6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 14px;
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .btn-home:hover {
-    background: #7c3aed;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+}
+
+.btn-home:active {
+    transform: translateY(0);
 }
 
 /* ===== GRID С КАРТОЧКАМИ ===== */
@@ -77,8 +80,8 @@ body {
 
 .stat-card {
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: 14px;
+    padding: 28px 24px 24px;
     text-align: center;
     transition: all 0.3s ease;
     border: 1px solid #e9ecef;
@@ -86,12 +89,17 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
     border-color: #ced4da;
+}
+
+.stat-card:active {
+    transform: translateY(-2px);
 }
 
 .stat-card .stat-icon {
@@ -112,15 +120,15 @@ body {
     flex-grow: 1;
 }
 
-/* ===== ОБЫЧНЫЕ КНОПКИ-ЗАГЛУШКИ ===== */
+/* ===== ОБЩИЙ СТИЛЬ КНОПОК ===== */
 .btn-stat {
     background: #e9ecef;
     color: #495057;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px 20px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
@@ -131,59 +139,58 @@ body {
     transform: scale(1.02);
 }
 
-/* ===== КНОПКА BACKUPS (особенная) ===== */
-.stat-card-backup {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border: 2px solid #0f3460;
-}
-
-.stat-card-backup:hover {
-    border-color: #e94560;
-    box-shadow: 0 8px 30px rgba(233, 69, 96, 0.2);
-}
-
-.stat-card-backup h3 {
-    color: #fff;
-}
-
-.stat-card-backup p {
-    color: #a8a8b3;
-}
-
-.btn-backup {
-    background: linear-gradient(135deg, #e94560, #c23152);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-backup:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
-}
-
-.btn-backup:active {
+.btn-stat:active {
     transform: scale(0.97);
 }
 
-/* ===== FOOTER ===== */
-.footer {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
-    text-align: center;
-    font-size: 13px;
-    color: #6c757d;
+/* ===== КАРТОЧКА СВЕРКИ ТОВАРОВ ===== */
+.warehouse-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+    border-color: #a5d6a7;
+}
+
+.warehouse-card:hover {
+    border-color: #66bb6a;
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.15);
+}
+
+.warehouse-card h3 {
+    color: #2e7d32;
+}
+
+.btn-warehouse {
+    background: linear-gradient(135deg, #66bb6a, #43a047);
+    color: #fff;
+}
+
+.btn-warehouse:hover {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.35);
+}
+
+/* ===== КАРТОЧКА BACKUPS ===== */
+.backup-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fce4ec 100%);
+    border-color: #f48fb1;
+}
+
+.backup-card:hover {
+    border-color: #ec407a;
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.15);
+}
+
+.backup-card h3 {
+    color: #880e4f;
+}
+
+.btn-backup {
+    background: linear-gradient(135deg, #ec407a, #d81b60);
+    color: #fff;
+}
+
+.btn-backup:hover {
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    box-shadow: 0 4px 16px rgba(233, 30, 99, 0.35);
 }
 
 /* ===== АДАПТИВ ===== */
@@ -210,6 +217,7 @@ body {
     .btn-home {
         width: 100%;
         justify-content: center;
+        text-align: center;
     }
 
     .stats-grid {
@@ -218,7 +226,7 @@ body {
     }
 
     .stat-card {
-        padding: 20px;
+        padding: 20px 16px 16px;
     }
 
     .stat-card .stat-icon {
@@ -229,5 +237,9 @@ body {
 @media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 24px 20px 20px;
     }
 }

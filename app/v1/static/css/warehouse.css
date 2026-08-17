@@ -1,0 +1,449 @@
+/* ========== ОБЩИЕ СТИЛИ ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+}
+
+/* ========== HEADER ========== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e8ecf1;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.header-left h1 {
+    font-size: 24px;
+    color: #1a1a2e;
+}
+
+.header-left h1 span {
+    margin-right: 10px;
+}
+
+.header-right {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ========== CONTROLS BAR ========== */
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 12px 18px;
+    background: #f8fafc;
+    border-radius: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ========== ОБЩИЕ СТИЛИ КНОПОК ========== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.btn .btn-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== ЦВЕТОВЫЕ ВАРИАНТЫ КНОПОК ========== */
+
+/* Статистика — градиентно-синяя */
+.btn-stat {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.btn-stat:hover {
+    background: linear-gradient(135deg, #5a6fd6 0%, #6a4296 100%);
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+}
+
+/* На главную — градиентно-зелёная */
+.btn-home {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+.btn-home:hover {
+    background: linear-gradient(135deg, #0e857b 0%, #2dd86e 100%);
+    box-shadow: 0 6px 24px rgba(56, 239, 125, 0.4);
+}
+
+/* Сохранить — ярко-зелёная */
+.btn-success {
+    background: #22c55e;
+    color: white;
+}
+.btn-success:hover {
+    background: #16a34a;
+    box-shadow: 0 6px 24px rgba(34, 197, 94, 0.4);
+}
+
+/* Сбросить — ярко-красная */
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+.btn-danger:hover {
+    background: #dc2626;
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.4);
+}
+
+/* Обновить — градиентно-оранжевая */
+.btn-refresh {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+.btn-refresh:hover {
+    background: linear-gradient(135deg, #e081ea 0%, #e04a5e 100%);
+    box-shadow: 0 6px 24px rgba(245, 87, 108, 0.4);
+}
+
+/* ========== СТАТИСТИКА ========== */
+.stats {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 25px;
+    padding: 15px 20px;
+    background: #f8fafc;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.stats-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-item .label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stats-item .value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* ========== ТАБЛИЦА ========== */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 700px;
+}
+
+.products-table thead {
+    background: #f8fafc;
+}
+
+.products-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.products-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f5;
+    vertical-align: middle;
+}
+
+.products-table tbody tr:hover {
+    background: #fafbfc;
+}
+
+/* ========== ИТОГОВАЯ СТРОКА ========== */
+.products-table .total-row td {
+    background: #f8fafc;
+    font-weight: 600;
+    border-top: 2px solid #d1d5db;
+}
+
+/* ========== ПОЛЯ ВВОДА ========== */
+.stock-input {
+    width: 80px;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.stock-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.stock-input.mismatch {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.stock-input.match {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+/* ========== БЕЙДЖИ СТАТУСА ========== */
+.mismatch-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mismatch-badge.error {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.mismatch-badge.success {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+/* ========== ДЕЙСТВИЯ ========== */
+.action-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sm:hover {
+    transform: scale(1.05);
+}
+
+.btn-save {
+    background: #4f46e5;
+    color: white;
+}
+.btn-save:hover {
+    background: #4338ca;
+}
+
+.btn-reset {
+    background: #f3f4f6;
+    color: #374151;
+}
+.btn-reset:hover {
+    background: #e5e7eb;
+}
+
+/* ========== EMPTY STATE ========== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+.empty-state .icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.empty-state .title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.empty-state .subtitle {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* ========== TOAST ========== */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1a1a2e;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.success {
+    border-left: 4px solid #22c55e;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-right {
+        width: 100%;
+    }
+
+    .header-right .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controls-left,
+    .controls-right {
+        justify-content: center;
+    }
+
+    .controls-left .btn,
+    .controls-right .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    .products-table th,
+    .products-table td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .stock-input {
+        width: 60px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-table {
+        font-size: 12px;
+        min-width: 500px;
+    }
+
+    .stock-input {
+        width: 50px;
+    }
+
+    .stats-item .value {
+        font-size: 15px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn .btn-icon {
+        font-size: 15px;
+    }
+}

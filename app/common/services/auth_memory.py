@@ -182,6 +182,82 @@ class AuthMemoryStore:
         except Exception:
             return None
 
+    # ============================================
+    #  МЕТОДЫ ДЛЯ СКЛАДОВ
+    # ============================================
+
+    async def get_warehouse_data(self) -> dict:
+        """
+        Получить данные складов из Redis
+        """
+        if not self._redis:
+            print("⚠️ Redis не инициализирован, возвращаем пустые данные")
+            return {}
+
+        try:
+            data = await self._redis.get("warehouse_data")
+            if data:
+                return json.loads(data)
+            return {}
+        except Exception as e:
+            print(f"❌ Ошибка получения данных складов: {e}")
+            return {}
+
+    async def save_warehouse_data(self, data: dict) -> bool:
+        """
+        Сохранить все данные складов в Redis
+        """
+        if not self._redis:
+            print("⚠️ Redis не инициализирован, данные не сохранены")
+            return False
+
+        try:
+            await self._redis.set("warehouse_data", json.dumps(data))
+            print(f"✅ Данные складов сохранены в Redis: {len(data)} позиций")
+            return True
+        except Exception as e:
+            print(f"❌ Ошибка сохранения данных складов: {e}")
+            return False
+
+    async def save_warehouse_row(self, product_id: int, dmitrieva: int, zelenaya: int) -> bool:
+        """
+        Сохранить данные по одному товару в Redis
+        """
+        if not self._redis:
+            print("⚠️ Redis не инициализирован")
+            return False
+
+        try:
+            # Загружаем текущие данные
+            current = await self.get_warehouse_data()
+
+            # Обновляем
+            current[str(product_id)] = {
+                "dmitrieva": dmitrieva,
+                "zelenaya": zelenaya
+            }
+
+            # Сохраняем
+            return await self.save_warehouse_data(current)
+        except Exception as e:
+            print(f"❌ Ошибка сохранения строки складов: {e}")
+            return False
+
+    async def clear_warehouse_data(self) -> bool:
+        """
+        Очистить все данные складов в Redis
+        """
+        if not self._redis:
+            return False
+
+        try:
+            await self._redis.delete("warehouse_data")
+            print("✅ Данные складов очищены")
+            return True
+        except Exception as e:
+            print(f"❌ Ошибка очистки данных складов: {e}")
+            return False
+
 
 auth_memory_store = AuthMemoryStore()
 
