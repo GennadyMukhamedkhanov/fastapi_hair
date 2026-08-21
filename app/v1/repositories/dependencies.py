@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import Form
 from decimal import Decimal
 
+from app.v1.repositories.statistics import SalesRepository
 from app.v1.repositories.tones import HairToneRepository
 from app.v1.repositories.transactions import TransactionRepository
 from app.v1.repositories.users import UserRepository
@@ -52,3 +53,7 @@ async def product_create_form(
         sale_price_per_100g=sale_price_per_100g,
         tax_rate=tax_rate,
     )
+
+
+async def get_sales_repository() -> SalesRepository:
+    return SalesRepository()

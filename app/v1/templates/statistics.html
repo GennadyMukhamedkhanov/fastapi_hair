@@ -23,7 +23,8 @@
     <!-- Сетка с кнопками -->
     <div class="stats-grid">
         <!-- Продажи -->
-        <div class="stat-card" onclick="showMessage('Продажи')">
+        <!-- Кнопка "Продажи" — переход на страницу статистики продаж -->
+        <div class="stat-card" onclick="window.location.href='/v1/statistics/sales/'">
             <div class="stat-icon">📈</div>
             <h3>Продажи</h3>
             <p>Статистика по продажам</p>
@@ -89,6 +90,7 @@
         function showMessage(section) {
             alert(`🔧 Раздел "${section}" в разработке. Функционал будет добавлен позже.`);
         }
+
     </script>
 </body>
 </html>

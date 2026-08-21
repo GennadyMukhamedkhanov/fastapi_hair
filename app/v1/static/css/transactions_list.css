@@ -48,28 +48,110 @@ body {
     gap: 15px;
 }
 
+/* ===== КНОПКА "НАЗАД" — УЛУЧШЕННАЯ ===== */
 .back-btn {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 20px;
-    background: #f1f5f9;
-    color: #475569;
-    text-decoration: none;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
+    border: 1px solid #dee2e6;
     border-radius: 12px;
-    font-weight: 500;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
     transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-    background: #e2e8f0;
-    transform: translateX(-3px);
-    color: #1e293b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .back-btn i {
     font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.back-btn span {
+    font-size: 15px;
+}
+
+/* При наведении */
+.back-btn:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #ced4da;
+    transform: translateX(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.back-btn:hover i {
+    transform: translateX(-4px);
+}
+
+/* При нажатии */
+.back-btn:active {
+    transform: scale(0.97);
+}
+
+/* ===== ВАРИАНТ С ЦВЕТОМ (фиолетовый градиент) ===== */
+.back-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.back-btn-primary:hover {
+    transform: translateX(-3px);
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.45);
+}
+
+.back-btn-primary i {
+    transition: transform 0.3s ease;
+}
+
+.back-btn-primary:hover i {
+    transform: translateX(-4px);
+}
+
+/* ===== ВАРИАНТ С ОБВОДКОЙ ===== */
+.back-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.back-btn-outline:hover {
+    background: #667eea;
+    color: #fff;
+    transform: translateX(-3px);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== АДАПТИВ КНОПОК ===== */
+@media (max-width: 768px) {
+    .back-btn,
+    .back-btn-primary,
+    .back-btn-outline {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
 }
 
 .page-title {
