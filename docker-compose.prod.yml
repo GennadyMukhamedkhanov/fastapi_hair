@@ -43,7 +43,7 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
       - media_data:/home/fast/media
-      - backup_data:/home/fast/backups
+      - ./backups:/home/fast/backups    # ✅ bind mount
     ports:
       - "8000:8000"
     env_file:
@@ -81,7 +81,7 @@ services:
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     volumes:
       - media_data:/home/fast/media
-      - backup_data:/home/fast/backups
+      - ./backups:/home/fast/backups    # ✅ bind mount
     env_file:
       - .env.prod
     environment:
@@ -116,7 +116,7 @@ services:
     container_name: hair_shop_celery_beat_prod
     command: celery -A app.celery_app beat --loglevel=info
     volumes:
-      - backup_data:/home/fast/backups
+      - ./backups:/home/fast/backups    # ✅ bind mount
     env_file:
       - .env.prod
     environment:
@@ -187,7 +187,7 @@ volumes:
   postgres_data:
   media_data:
   redis_data:
-  backup_data:
+  # backup_data:  ← удалено
 
 networks:
   hair_network:
