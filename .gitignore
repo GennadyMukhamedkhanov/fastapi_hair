@@ -220,3 +220,6 @@ backups/
 *.sql
 *.sql.gz
 *.dump
+
+
+.env.prod
