@@ -43,7 +43,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('wallets',
-    sa.Column('id', sa.Integer(), server_default='1', autoincrement=False, nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('balance', sa.Numeric(precision=12, scale=2), server_default='0.00', nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.CheckConstraint('balance >= 0', name='balance_non_negative'),
