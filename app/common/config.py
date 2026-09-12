@@ -7,7 +7,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 
 # ✅ Явно указываем путь к .env
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env_path = BASE_DIR / ".env.prod"  # Раскомментировать для продакшена
 #env_path = BASE_DIR / ".env"  # Использовать для разработки
 
