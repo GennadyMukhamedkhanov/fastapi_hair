@@ -9,12 +9,14 @@ from app.common.config import settings
 from app.common.db_depends import get_async_db
 from app.common.services.security import decode_access_token
 from app.v1.conf.templates import templates
+from app.v1.enums import EDITABLE_TYPES, TransactionType
 from app.v1.repositories.dependencies import get_transaction_repository, \
     get_wallet_repository
 from app.v1.repositories.transactions import TransactionRepository
 from app.v1.repositories.wallets import WalletRepository
 from app.v1.services.transactions import get_list_transactions_service
 from app.v1.services.wallets import get_balance_wallet_user_service, get_wallets_service
+from fastapi.responses import RedirectResponse
 
 router = APIRouter(
     tags=["transactions"]
@@ -244,8 +246,6 @@ async def create_deposit_transaction(
         raise
 
 
-
-
 @router.get("/withdrawal/form", response_class=HTMLResponse, name="create_withdrawal_form")
 async def get_withdrawal_form(
         request: Request,
@@ -261,7 +261,6 @@ async def get_withdrawal_form(
             "balance_user": balance_user,
         }
     )
-
 
 
 @router.post(
@@ -315,3 +314,86 @@ async def create_withdrawal_transaction(
     except Exception:
         await session.rollback()
         raise
+
+
+TYPE_LABELS = {
+    "sale": "Продажа",
+    "deposit": "Пополнение",
+    "withdrawal": "Вывод",
+    "return": "Возврат",
+    "purchase": "Новая закупка",
+    "transfer": "Расходы",
+}
+
+
+@router.get(
+    "/detail/{transaction_id}",
+    response_class=HTMLResponse,
+    name="get_transaction_detail",
+)
+async def get_transaction_detail(
+        request: Request,
+        transaction_id: int,
+        session: AsyncSession = Depends(get_async_db),
+        transactions_repo: TransactionRepository = Depends(get_transaction_repository),
+):
+    """Детальная страница транзакции."""
+    transaction = await transactions_repo.get_detail_transaction(
+        session, transaction_id
+    )
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Транзакция не найдена")
+
+    return templates.TemplateResponse(
+        request=request,
+        name="transactions_detail.html",
+        context={
+            "title": f"Транзакция #{transaction.id}",
+            "transaction": transaction,
+            # ⬇️ обязательно для шаблона
+            "editable_types_values": [t.value for t in EDITABLE_TYPES],
+            "type_labels": TYPE_LABELS,
+        },
+    )
+
+
+@router.post(
+    "/change/type_transaction",
+    name="change_type_transaction",
+)
+async def change_type_transaction(
+        request: Request,
+        transaction_id: int = Form(...),
+        transaction_type: str = Form(...),
+        session: AsyncSession = Depends(get_async_db),
+        transactions_repo: TransactionRepository = Depends(get_transaction_repository),
+):
+    """Смена типа транзакции."""
+    try:
+        new_type = TransactionType(transaction_type)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Неизвестный тип транзакции")
+
+    if new_type not in EDITABLE_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Смена типа разрешена только для: deposit, withdrawal, purchase, transfer",
+        )
+
+    try:
+        updated = await transactions_repo.change_transaction_type(
+            session=session,
+            transaction_id=transaction_id,
+            new_type=new_type,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if not updated:
+        raise HTTPException(status_code=404, detail="Транзакция не найдена")
+
+    # PRG-паттерн: после POST — редирект на GET
+    return RedirectResponse(
+        url=f"/v1/transactions/detail/{transaction_id}",
+        status_code=303,
+    )

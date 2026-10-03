@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — CRM Hair</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="/v1/static/css/transactions_detail.css">
+</head>
+<body>
+<div class="container">
+
+    <!-- Навигация -->
+    <div class="nav-header">
+        <a href="/v1/transactions/" class="back-btn-primary">
+            <i class="fas fa-arrow-left"></i>
+            <span>Назад к списку транзакций</span>
+        </a>
+        <h1 class="page-title">
+            <i class="fas fa-receipt"></i>
+            {{ title }}
+        </h1>
+        <div class="spacer"></div>
+    </div>
+
+    {% if not transaction %}
+
+    <div class="empty-state-large">
+        <i class="fas fa-circle-exclamation"></i>
+        <h2>Транзакция не найдена</h2>
+        <p>Возможно, она была удалена или указан неверный ID.</p>
+        <a href="/v1/transactions/" class="btn-primary">
+            <i class="fas fa-arrow-left"></i>
+            Вернуться к списку
+        </a>
+    </div>
+
+    {% else %}
+
+    {# Приводим тип к строке: работает и для Enum, и для String #}
+    {% set t_type = transaction.transaction_type.value
+                    if transaction.transaction_type is not string
+                    else transaction.transaction_type %}
+    {% set t_label = type_labels.get(t_type, t_type) %}
+
+    <!-- Hero-блок -->
+    <div class="detail-hero type-{{ t_type }}">
+        <div class="hero-left">
+            <div class="hero-icon">
+                <i class="fas
+                    {% if t_type == 'sale' %}fa-cart-shopping
+                    {% elif t_type == 'deposit' %}fa-plus-circle
+                    {% elif t_type == 'withdrawal' %}fa-minus-circle
+                    {% elif t_type == 'return' %}fa-rotate-left
+                    {% elif t_type == 'purchase' %}fa-boxes-stacked
+                    {% elif t_type == 'transfer' %}fa-arrows-left-right
+                    {% else %}fa-circle
+                    {% endif %}"></i>
+            </div>
+            <div class="hero-info">
+                <span class="hero-label">Тип операции</span>
+                <span class="hero-value">{{ t_label }}</span>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <span class="hero-transaction-id">#{{ transaction.id }}</span>
+            <span class="hero-date">
+                <i class="far fa-clock"></i>
+                {{ transaction.created_at.strftime('%d.%m.%Y %H:%M')
+                   if transaction.created_at else '—' }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Основная сумма -->
+    <div class="amount-hero">
+        <span class="amount-hero-label">Сумма операции</span>
+        <span class="amount-hero-value
+            {% if t_type in ['sale', 'deposit', 'return'] %}positive
+            {% elif t_type in ['withdrawal', 'purchase', 'transfer'] %}negative
+            {% else %}neutral{% endif %}">
+            {% if t_type in ['withdrawal', 'purchase', 'transfer'] %}-{% endif %}
+            {{ "{:,.2f}".format(transaction.amount|float).replace(',', ' ')
+               if transaction.amount is not none else '0.00' }} ₽
+        </span>
+    </div>
+
+    <!-- Блок смены типа — только для withdrawal / purchase / transfer -->
+    {% if t_type in editable_types_values %}
+    <div class="detail-card change-type-card">
+        <h2 class="card-title">
+            <i class="fas fa-shuffle"></i>
+            Изменить тип операции
+        </h2>
+        <p class="change-type-hint">
+            Текущий тип: <strong>{{ t_label }}</strong>.
+            Доступны для смены: Вывод, Новая закупка, Расходы.
+        </p>
+
+        <form method="post"
+              action="/v1/transactions/change/type_transaction"
+              class="change-type-form">
+
+            <input type="hidden" name="transaction_id" value="{{ transaction.id }}">
+
+            <div class="change-type-options">
+                {% for type_value, type_label_item in [
+                    ('withdrawal', 'Вывод'),
+                    ('purchase', 'Новая закупка'),
+                    ('transfer', 'Расходы')
+                ] %}
+                <label class="type-option {% if t_type == type_value %}type-option-current{% endif %}">
+                    <input type="radio"
+                           name="transaction_type"
+                           value="{{ type_value }}"
+                           {% if t_type == type_value %}checked{% endif %}>
+                    <span class="type-option-inner type-option-{{ type_value }}">
+                        <i class="fas
+                            {% if type_value == 'withdrawal' %}fa-minus-circle
+                            {% elif type_value == 'purchase' %}fa-boxes-stacked
+                            {% elif type_value == 'transfer' %}fa-arrows-left-right
+                            {% endif %}"></i>
+                        <span>{{ type_label_item }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div class="change-type-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check"></i>
+                    Сохранить тип
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Сетка деталей -->
+    <div class="detail-grid">
+
+        <!-- Финансовые показатели -->
+        <div class="detail-card">
+            <h2 class="card-title">
+                <i class="fas fa-coins"></i>
+                Финансовые показатели
+            </h2>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="detail-label">Сумма продажи</span>
+                    <span class="detail-value">
+                        {% if transaction.sale_amount is not none %}
+                            {{ "{:,.2f}".format(transaction.sale_amount|float).replace(',', ' ') }} ₽
+                        {% else %}—{% endif %}
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Себестоимость</span>
+                    <span class="detail-value">
+                        {% if transaction.cost_amount is not none %}
+                            {{ "{:,.2f}".format(transaction.cost_amount|float).replace(',', ' ') }} ₽
+                        {% else %}—{% endif %}
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Прибыль</span>
+                    <span class="detail-value
+                        {% if transaction.profit_amount is not none %}
+                            {% if transaction.profit_amount|float > 0 %}profit-positive
+                            {% elif transaction.profit_amount|float < 0 %}profit-negative
+                            {% else %}profit-neutral{% endif %}
+                        {% endif %}">
+                        {% if transaction.profit_amount is not none %}
+                            {{ "{:,.2f}".format(transaction.profit_amount|float).replace(',', ' ') }} ₽
+                        {% else %}—{% endif %}
+                    </span>
+                </div>
+
+                <div class="detail-row detail-row-total">
+                    <span class="detail-label">Итоговая сумма</span>
+                    <span class="detail-value
+                        {% if t_type in ['sale', 'deposit', 'return'] %}profit-positive
+                        {% elif t_type in ['withdrawal', 'purchase', 'transfer'] %}profit-negative
+                        {% else %}profit-neutral{% endif %}">
+                        {% if t_type in ['withdrawal', 'purchase', 'transfer'] %}-{% endif %}
+                        {{ "{:,.2f}".format(transaction.amount|float).replace(',', ' ')
+                           if transaction.amount is not none else '0.00' }} ₽
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пользователь -->
+        <div class="detail-card">
+            <h2 class="card-title">
+                <i class="fas fa-user"></i>
+                Пользователь
+            </h2>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="detail-label">ID пользователя</span>
+                    <span class="detail-value">{{ transaction.user_id or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Имя</span>
+                    <span class="detail-value">
+                        {{ transaction.user.username if transaction.user else 'Неизвестно' }}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">
+                        {{ transaction.user.email if transaction.user and transaction.user.email else '—' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кошелёк -->
+        <div class="detail-card">
+            <h2 class="card-title">
+                <i class="fas fa-wallet"></i>
+                Кошелёк
+            </h2>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="detail-label">ID кошелька</span>
+                    <span class="detail-value">{{ transaction.wallet_id or '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Название</span>
+                    <span class="detail-value">
+                        {{ transaction.wallet.name if transaction.wallet else '—' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Служебная информация -->
+        <div class="detail-card">
+            <h2 class="card-title">
+                <i class="fas fa-circle-info"></i>
+                Служебная информация
+            </h2>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="detail-label">ID транзакции</span>
+                    <span class="detail-value">#{{ transaction.id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Дата создания</span>
+                    <span class="detail-value">
+                        {{ transaction.created_at.strftime('%d.%m.%Y %H:%M:%S')
+                           if transaction.created_at else '—' }}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Статус</span>
+                    <span class="detail-value">
+                        {% if transaction.is_deleted %}
+                            <span class="status-badge status-deleted">
+                                <i class="fas fa-trash"></i> Удалена
+                            </span>
+                            {% if transaction.deleted_at %}
+                                <br>
+                                <small class="muted">
+                                    Удалена: {{ transaction.deleted_at.strftime('%d.%m.%Y %H:%M') }}
+                                </small>
+                            {% endif %}
+                        {% else %}
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check"></i> Активна
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Описание -->
+        <div class="detail-card detail-card-full">
+            <h2 class="card-title">
+                <i class="fas fa-align-left"></i>
+                Описание
+            </h2>
+            <div class="description-block">
+                {{ transaction.description or 'Описание отсутствует' }}
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    <div class="footer">
+        <i class="fas fa-code"></i>
+        <span>CRM Hair — Детали транзакции</span>
+    </div>
+</div>
+</body>
+</html>

@@ -63,31 +63,3 @@ async def get_list_transactions_service(
         "transactions": sorted_transactions,
         "users_names": users_names
     }
-
-#
-# async def create_purchase_transaction_service(
-#         request: Request,
-#         amount: Decimal = Form(..., description="Сумма закупки"),
-#         description: str = Form(..., description="Описание закупки"),
-#         session: AsyncSession = Depends(get_async_db),
-#         transactions_repo: TransactionRepository = Depends(get_transaction_repository),
-#         wallets_repo: WalletRepository = Depends(get_wallet_repository)
-# ):
-#     token = request.cookies.get(settings.cookie_name)
-#     payload = decode_access_token(token) if token else None
-#
-#     if payload is None:
-#         raise HTTPException(status_code=401, detail="Не авторизован")
-#
-#     user_id = payload.get("user_id", "") if payload else ""
-#
-#     wallet = await wallets_repo.get_wallet_by_user_id(session, user_id)
-#     if wallet is None:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Кошелек не найден"
-#         )
-#     wallet_id = wallet.id
-#
-#     await transactions_repo.create_purchase_transaction_repository(session, amount, description, user_id, wallet_id)
-#     return True

@@ -31,3 +31,9 @@ class TransactionType(Enum):
     TRANSFER = "transfer"  # "transfer" - расход - в случае каких-либо расходов (пакеты, резинки и т.д.)
 
 
+
+EDITABLE_TYPES = {
+    TransactionType.PURCHASE,
+    TransactionType.TRANSFER,
+    TransactionType.WITHDRAWAL,
+}

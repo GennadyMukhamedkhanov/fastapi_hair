@@ -101,6 +101,7 @@
         </div>
     </div>
 
+
     <!-- Таблица транзакций -->
     <div class="table-container">
         <table class="transactions-table" id="transactions-table">
@@ -126,7 +127,9 @@
                 data-description="{{ transaction.description or '' }}"
                 data-date="{{ transaction.created_at if transaction.created_at else '' }}">
                 <td class="col-id">
-                    <span class="transaction-id">#{{ transaction.id }}</span>
+                    <a href="/v1/transactions/detail/{{ transaction.id }}" class="transaction-id">
+                        #{{ transaction.id }}
+                    </a>
                 </td>
                 <td class="col-user">
                     <div class="user-cell">
@@ -229,6 +232,7 @@
             </tbody>
         </table>
     </div>
+
 
     <!-- Пагинация -->
     <div class="pagination">
@@ -400,6 +404,8 @@
                 }, 50);
             });
         });
+
+
 
 
 </script>
