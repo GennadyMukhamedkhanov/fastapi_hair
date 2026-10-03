@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.common.models import Order, OrderItem, Wallet, WalletTransaction
 from app.common.models.hairs import HairProduct, HairTone
-from app.v1.enums import ProductStatusEnum, OrderStatus, TransactionType
+from app.v1.enums import ProductStatusEnum, OrderStatus, TransactionType, EDITABLE_TYPES
 from app.v1.repositories.common import CommonRepository
 from app.v1.schemas.orders import OrderCreateSchema
 
@@ -235,3 +235,52 @@ class TransactionRepository(CommonRepository):
         session.add(transaction)
 
         return True
+
+    async def get_detail_transaction(
+            self,
+            session: AsyncSession,
+            transaction_id: int,
+    ) -> WalletTransaction | None:
+        stmt = (
+            select(self.model)
+            .options(
+                selectinload(self.model.user),
+                selectinload(self.model.wallet),
+            )
+            .where(self.model.id == transaction_id)
+        )
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def change_transaction_type(
+            self,
+            session: AsyncSession,
+            transaction_id: int,
+            new_type: TransactionType,
+    ) -> WalletTransaction | None:
+        transaction = await self.get_detail_transaction(session, transaction_id)
+        if not transaction:
+            return None
+
+        current_type = transaction.transaction_type
+        if isinstance(current_type, str):
+            try:
+                current_type = TransactionType(current_type)
+            except ValueError:
+                raise ValueError(f"Неизвестный текущий тип: {transaction.transaction_type}")
+
+        if current_type not in EDITABLE_TYPES:
+            raise ValueError(f"Смена типа для '{current_type.value}' запрещена")
+
+        if new_type not in EDITABLE_TYPES:
+            raise ValueError(f"Недопустимый новый тип: '{new_type.value}'")
+
+        if current_type == new_type:
+            return transaction
+
+        # ⬇️ ключевое исправление: пишем строку, а не Enum
+        transaction.transaction_type = new_type.value
+
+        await session.commit()
+        await session.refresh(transaction)
+        return transaction
