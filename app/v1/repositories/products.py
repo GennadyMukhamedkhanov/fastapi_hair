@@ -73,6 +73,21 @@ class ProductRepository(CommonRepository):
         new_stock_grams = update_data.get('stock_grams')
         new_purchase_price_per_100g = update_data.get('purchase_price_per_100g')
 
+        # Todo === ГЛАВНАЯ ПРОВЕРКА: запрет уменьшения остатка ===
+        if new_stock_grams is not None and new_stock_grams < old_stock_grams:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"Нельзя уменьшить остаток: было {old_stock_grams} г, "
+                    f"передано {new_stock_grams} г. "
+                    f"Для списания/продажи используйте отдельную операцию."
+                ),
+            )
+
+
+
+
+
         # СЛУЧАЙ 1: Количество было 0 - просто обновляем
         if old_stock_grams == 0:
             for key, value in update_data.items():
