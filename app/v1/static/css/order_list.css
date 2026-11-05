@@ -144,6 +144,8 @@
 .order-number {
     font-weight: 600;
     color: #667eea;
+    white-space: pre-line;
+    min-width: 240px;
 }
 
 /* ============================================ */

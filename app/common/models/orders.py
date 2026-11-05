@@ -30,7 +30,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, comment="Уникальный идентификатор заказа")
-    order_number: Mapped[str] = mapped_column(String(50), unique=True, index=True, comment="Уникальный номер заказа в человекочитаемом формате")
+    order_number: Mapped[str] = mapped_column(String(1000), unique=True, index=True, comment="Уникальный номер заказа в человекочитаемом формате")
     status: Mapped[str] = mapped_column(String(25), default=OrderStatus.IN_TRANSIT.value, comment="Текущий статус заказа")
     total_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Общая стоимость заказа до финальных корректировок")
     final_price: Mapped[Decimal | None] = mapped_column(DECIMAL(10, 2), nullable=True, comment="Итоговая стоимость заказа после всех изменений и корректировок")
