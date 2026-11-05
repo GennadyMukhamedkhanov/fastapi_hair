@@ -89,6 +89,7 @@ class OrderRepository(CommonRepository):
         # при создании считаются только закупочные суммы (если нужны),
         # продажная цена и прибыль пока не считаются
         order_items: list[OrderItem] = []
+        items_for_order_number: list[dict] = []
 
         for product_id, grams in merged_items.items():
             product = products_map[product_id]
@@ -124,12 +125,28 @@ class OrderRepository(CommonRepository):
             )
             order_items.append(order_item)
 
+            items_for_order_number.append({
+                "tone": product.tone.tone,
+                "length_cm": product.length_cm,
+                "grams": grams,
+            })
+
             product.stock_grams -= grams
 
         # total_price / final_price / profit пока не заполняются,
         # или можно оставить как Decimal("0.00"), если хочешь избежать null
+        order_number = self._generate_order_number(
+            user_name=user_name,
+            delivery_service=delivery_service,
+            order_number=order_data.order_number,
+            items=items_for_order_number, )
+
         order = Order(
-            order_number=self._generate_order_number(user_name, delivery_service, order_data.order_number),
+            order_number=self._generate_order_number(
+                user_name=user_name,
+                delivery_service=delivery_service,
+                order_number=order_data.order_number,
+                items=items_for_order_number,),
             status=OrderStatus.IN_TRANSIT.value,
             total_price=Decimal("0.00"),
             final_price=Decimal("0.00"),
@@ -301,7 +318,18 @@ class OrderRepository(CommonRepository):
 
         return order
 
-
     @staticmethod
-    def _generate_order_number(user_name, delivery_service, order_number) -> str:
-        return f"{user_name}-{delivery_service}-№{order_number}- от {datetime.now().strftime('%d-%m-%Y')}"
+    def _generate_order_number(
+            user_name: str,
+            delivery_service: str,
+            order_number: int | str,
+            items: list[dict],
+    ) -> str:
+        lines = [f"{user_name}-{delivery_service}-№{order_number}"]
+
+        for item in items:
+            lines.append(
+                f"{item['tone']} | {item['length_cm']} см | {item['grams']} г"
+            )
+
+        return "\n".join(lines)
